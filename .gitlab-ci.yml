@@ -1,12 +1,45 @@
-# CI for Yonderloft. Two cheap gates that don't need the GTK stack, plus an
-# optional Flatpak build.
+# CI for Yonderloft.
+#
+#   check  → catalog validation + Python lint   (every push/MR)
+#   test   → pytest of the GTK-free layer        (every push/MR)
+#   build  → build the Flatpak bundle            (MRs, default branch, tags)
+#   upload → push the bundle to the Package Registry   (tags only)
+#   release→ create a GitLab Release with the bundle    (tags only)
+#
+# Tag a commit (e.g. `git tag v0.1.0 && git push --tags`) and a new entry appears
+# under Deploy → Releases with the .flatpak attached. No manual upload.
+
+include:
+  # GNOME's maintained Flatpak CI template. Provides the hidden `.flatpak` job and
+  # an image with a working (setuid) bwrap so flatpak-builder runs on shared
+  # runners. Pulled over HTTP at pipeline-creation time.
+  - remote: "https://gitlab.gnome.org/GNOME/citemplates/-/raw/master/flatpak/flatpak_ci_initiative.yml"
 
 stages:
   - check
   - test
+  - build
+  - upload
+  - release
 
-# Validate the catalog against the schema + integrity rules. Runs on any change
-# to the catalog so community title MRs get checked automatically.
+variables:
+  # Inputs consumed by the `.flatpak` template.
+  APP_ID: "uk.aaronworld.Yonderloft"
+  BUNDLE: "yonderloft.flatpak"
+  MANIFEST_PATH: "build-aux/flatpak/uk.aaronworld.Yonderloft.json"
+  FLATPAK_MODULE: "yonderloft"
+  # Our runtime is org.gnome.Platform//48 from Flathub, so bundle Flathub as the
+  # runtime source (the template defaults this to GNOME nightly).
+  RUNTIME_REPO: "https://dl.flathub.org/repo/flathub.flatpakrepo"
+  # Where the built bundle is published in the project's generic Package Registry.
+  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/yonderloft/${CI_COMMIT_TAG}/${BUNDLE}"
+
+# ---------------------------------------------------------------------------
+# check
+# ---------------------------------------------------------------------------
+
+# Validate the catalog against the schema + integrity rules so community title
+# MRs get checked automatically.
 catalog:
   stage: check
   image: python:3.12-slim
@@ -31,8 +64,11 @@ lint:
     - python3 -m py_compile $(find src -name '*.py')
     - python3 -m pyflakes src/yonderloft
 
-# Unit-test the GTK-free layer (models, catalog I/O, status, config, profiles,
-# validator). The GUI shell is covered by the Flatpak build, not here.
+# ---------------------------------------------------------------------------
+# test
+# ---------------------------------------------------------------------------
+
+# Unit-test the GTK-free layer. The GUI shell is exercised by the Flatpak build.
 pytest:
   stage: test
   image: python:3.12-slim
@@ -40,3 +76,69 @@ pytest:
     - pip install --quiet pytest jsonschema
   script:
     - python3 -m pytest
+
+# ---------------------------------------------------------------------------
+# build
+# ---------------------------------------------------------------------------
+
+# Build the single-file Flatpak bundle. Runs on tags (for release), and on MRs
+# and the default branch so a broken manifest is caught before tagging.
+flatpak:
+  extends: .flatpak
+  stage: build
+  rules:
+    - if: "$CI_COMMIT_TAG"
+    - if: "$CI_PIPELINE_SOURCE == 'merge_request_event'"
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
+
+# ---------------------------------------------------------------------------
+# upload (tags only)
+# ---------------------------------------------------------------------------
+
+# Publish the bundle to the generic Package Registry at a stable, versioned URL
+# so the Release asset link never expires (unlike raw job artifacts).
+upload:
+  stage: upload
+  image: curlimages/curl:latest
+  needs:
+    - job: flatpak
+      artifacts: true
+  rules:
+    - if: "$CI_COMMIT_TAG"
+  script:
+    - 'curl --fail --silent --show-error --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "${BUNDLE}" "${PACKAGE_REGISTRY_URL}"'
+
+# ---------------------------------------------------------------------------
+# release (tags only)
+# ---------------------------------------------------------------------------
+
+# Create the GitLab Release entry and attach the uploaded bundle as a package
+# asset. This is what populates the Release tab.
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: upload
+  rules:
+    - if: "$CI_COMMIT_TAG"
+  script:
+    - echo "Publishing release ${CI_COMMIT_TAG}"
+  release:
+    tag_name: "${CI_COMMIT_TAG}"
+    name: "Yonderloft ${CI_COMMIT_TAG}"
+    description: |
+      Automated Flatpak build for ${CI_COMMIT_TAG}.
+
+      Download `${BUNDLE}` below and install it with:
+
+          flatpak install --user ${BUNDLE}
+          flatpak run ${APP_ID}
+
+      The bundle pulls its runtime (org.gnome.Platform 48) from Flathub on first
+      install, so a Flathub remote is required:
+      `flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`
+    assets:
+      links:
+        - name: "${BUNDLE} (Flatpak bundle)"
+          url: "${PACKAGE_REGISTRY_URL}"
+          link_type: "package"

@@ -24,7 +24,7 @@
   "modules": [
     {
       "name": "ruffle",
-      "comment": "Bundled self-hosted Ruffle (Rust/WASM Flash emulator, MIT/Apache). The ruffle runtime resolves it at <pkgdatadir>/ruffle. Pin to a tested release and fill in the real sha256 before publishing.",
+      "comment": "Bundled self-hosted Ruffle (Rust/WASM Flash emulator, MIT/Apache). The ruffle runtime resolves it at <pkgdatadir>/ruffle. Bump with build-aux/flatpak/update-ruffle.py.",
       "buildsystem": "simple",
       "build-commands": [
         "install -d /app/share/yonderloft/ruffle",
@@ -34,8 +34,9 @@
         {
           "type": "archive",
           "archive-type": "zip",
-          "url": "https://github.com/ruffle-rs/ruffle/releases/download/nightly-2026-06-01/ruffle-nightly-2026_06_01-web-selfhosted.zip",
-          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "strip-components": 0,
+          "url": "https://github.com/ruffle-rs/ruffle/releases/download/v0.3.0/ruffle-0.3.0-web-selfhosted.zip",
+          "sha256": "9cdc5baac95dea452d2ef4a3859f3a4c8576dd3377bb40849e41fb6359170d7d",
           "x-checker-data": {
             "type": "json",
             "url": "https://api.github.com/repos/ruffle-rs/ruffle/releases/latest",
