@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2026 Aaron -->
+<component type="desktop-application">
+  <id>uk.aaronworld.Yonderloft</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>Yonderloft</name>
+  <summary>Play rewritten childhood MMOs</summary>
+
+  <description>
+    <p>
+      Yonderloft is the attic where the old web lives on: a native launcher for the
+      community revivals of shut-down childhood online games — Club Penguin, Moshi
+      Monsters, Bin Weevils, Pixie Hollow, Toontown and more.
+    </p>
+    <p>
+      It catalogs confirmed-live revival servers, picks the right runtime for each
+      title automatically (Ruffle for most Flash games, a sandboxed legacy runtime
+      where needed, or a plain web view for HTML5 rewrites), and runs every game in
+      its own isolated, sandboxed profile so nothing leaks between servers.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>A browsable grid of games with live online/offline status</li>
+      <li>Automatic, per-title runtime selection — no Flash plugin wrangling</li>
+      <li>Per-game isolated profiles and one-click "clear data"</li>
+      <li>A remote catalog, so new games appear without an app update</li>
+      <li>No telemetry</li>
+    </ul>
+    <p>
+      Yonderloft is an independent project. It is not affiliated with or endorsed by
+      any rights holder or revival project, and it hosts no game content of its own.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">uk.aaronworld.Yonderloft.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://aaronworld.uk/yonderloft/screenshots/grid.png</image>
+      <caption>The game grid with live status badges</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://aaronworld.uk/yonderloft/screenshots/detail.png</image>
+      <caption>A title's detail view, with server picker and runtime disclosure</caption>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://aaronworld.uk/yonderloft</url>
+  <url type="bugtracker">https://gitlab.com/FascinatingPistachio/yonderloft/-/issues</url>
+  <url type="vcs-browser">https://gitlab.com/FascinatingPistachio/yonderloft</url>
+
+  <developer id="uk.aaronworld">
+    <name>Aaron</name>
+  </developer>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-info">moderate</content_attribute>
+  </content_rating>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#FAF8F5</color>
+    <color type="primary" scheme_preference="dark">#241F31</color>
+  </branding>
+
+  <categories>
+    <category>Game</category>
+  </categories>
+
+  <keywords>
+    <keyword>flash</keyword>
+    <keyword>ruffle</keyword>
+    <keyword>revival</keyword>
+    <keyword>nostalgia</keyword>
+  </keywords>
+
+  <releases>
+    <release version="0.1.0" date="2026-06-22" type="development">
+      <description>
+        <p>First pre-alpha. Shell, remote catalog, Ruffle and web runtimes,
+        isolated profiles, and live status badges.</p>
+      </description>
+    </release>
+  </releases>
+</component>

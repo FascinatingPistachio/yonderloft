@@ -1,0 +1,7 @@
+data/uk.aaronworld.Yonderloft.desktop.in
+data/uk.aaronworld.Yonderloft.metainfo.xml.in
+src/yonderloft/application.py
+src/yonderloft/window.py
+src/yonderloft/views/grid.py
+src/yonderloft/views/detail.py
+src/yonderloft/views/game_window.py

@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "updated": "2026-06-22",
+  "categories": [
+    { "id": "penguins", "name": "Penguins" },
+    { "id": "pets_monsters", "name": "Pets & Monsters" },
+    { "id": "fairy", "name": "Fairy worlds" },
+    { "id": "disney", "name": "Disney" },
+    { "id": "other", "name": "Other" }
+  ],
+  "titles": [
+    {
+      "id": "new-club-penguin",
+      "name": "New Club Penguin",
+      "category": "penguins",
+      "description": "A faithful Club Penguin revival running the original AS3 client. Active community, regular parties and updates.",
+      "art": "art/new-club-penguin.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://newcp.net/", "status_url": "https://newcp.net/", "default": true }
+      ],
+      "tags": ["flash", "as3"],
+      "notes": "Runtime provisional: Ruffle's AS3 coverage for the CP client is incomplete; using sandboxed Flash until verified. See README §6.",
+      "homepage": "https://newcp.net/"
+    },
+    {
+      "id": "club-penguin-journey",
+      "name": "Club Penguin Journey",
+      "category": "penguins",
+      "description": "A Club Penguin recreation aiming to rebuild the original experience era by era.",
+      "art": "art/club-penguin-journey.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://cpjourney.net/", "status_url": "https://cpjourney.net/", "default": true }
+      ],
+      "tags": ["flash", "as3"],
+      "homepage": "https://cpjourney.net/"
+    },
+    {
+      "id": "cpzero",
+      "name": "CPZero",
+      "category": "penguins",
+      "description": "A Club Penguin private server focused on the classic island.",
+      "art": "art/cpzero.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://cpzero.net/", "status_url": "https://cpzero.net/", "default": true }
+      ],
+      "tags": ["flash", "as3"],
+      "notes": "Verify live server URL before launch."
+    },
+    {
+      "id": "waddle-forever",
+      "name": "Waddle Forever",
+      "category": "penguins",
+      "description": "A single-player Club Penguin archive that ships its own client and runs offline.",
+      "art": "art/waddle-forever.png",
+      "runtime": "client",
+      "servers": [
+        { "name": "Releases", "url": "https://github.com/nhaar/Waddle-Forever/releases", "status_url": "https://github.com/nhaar/Waddle-Forever/releases", "default": true }
+      ],
+      "client": {
+        "kind": "appimage_or_flatpak",
+        "source_url": "https://github.com/nhaar/Waddle-Forever/releases",
+        "install_hint": "Single-player CP archive; Yonderloft fetches and wraps its own client."
+      },
+      "tags": ["singleplayer", "archive"],
+      "homepage": "https://github.com/nhaar/Waddle-Forever"
+    },
+    {
+      "id": "moshi-monsters-rewritten",
+      "name": "Moshi Monsters Rewritten",
+      "category": "pets_monsters",
+      "description": "A community recreation of the 2008 monster-adoption game. No membership paywall, unlike the original.",
+      "art": "art/moshi-monsters-rewritten.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://www.moshimonstersrewritten.com/", "status_url": "https://www.moshimonstersrewritten.com/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash", "as2"],
+      "notes": "No membership paywall, unlike the original.",
+      "homepage": "https://www.moshimonstersrewritten.com/"
+    },
+    {
+      "id": "bin-weevils-rewritten",
+      "name": "Bin Weevils Rewritten",
+      "category": "pets_monsters",
+      "description": "A revival of the Bin Weevils virtual world for tending your nest and exploring Binweevingdom.",
+      "art": "art/bin-weevils-rewritten.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://binweevilsrewritten.com/", "status_url": "https://binweevilsrewritten.com/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash", "as2"],
+      "notes": "Runtime provisional pending Ruffle verification (README §6 action item)."
+    },
+    {
+      "id": "we-the-pixies",
+      "name": "We The Pixies",
+      "category": "fairy",
+      "description": "A Pixie Hollow revival recreating the Disney Fairies world.",
+      "art": "art/we-the-pixies.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://wethepixies.net/", "status_url": "https://wethepixies.net/", "default": true }
+      ],
+      "tags": ["flash"],
+      "notes": "Verify AS2/AS3 and live URL before launch."
+    },
+    {
+      "id": "fairyabc",
+      "name": "Fairyabc",
+      "category": "fairy",
+      "description": "A browser-based Pixie Hollow revival.",
+      "art": "art/fairyabc.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://www.fairyabc.com/", "status_url": "https://www.fairyabc.com/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash", "as2"]
+    },
+    {
+      "id": "myvmk",
+      "name": "MyVMK",
+      "category": "disney",
+      "description": "A revival of Disney's Virtual Magic Kingdom, with its own downloadable client.",
+      "art": "art/myvmk.png",
+      "runtime": "client",
+      "servers": [
+        { "name": "Main", "url": "https://myvmk.com/", "status_url": "https://myvmk.com/", "default": true }
+      ],
+      "client": {
+        "kind": "tarball",
+        "source_url": "https://myvmk.com/",
+        "install_hint": "MyVMK ships its own desktop client; Yonderloft wraps it."
+      },
+      "tags": ["client"],
+      "homepage": "https://myvmk.com/"
+    },
+    {
+      "id": "toontown-rewritten",
+      "name": "Toontown Rewritten",
+      "category": "disney",
+      "description": "The long-running revival of Disney's Toontown Online, with its own native launcher and client.",
+      "art": "art/toontown-rewritten.png",
+      "runtime": "client",
+      "servers": [
+        { "name": "Main", "url": "https://www.toontownrewritten.com/", "status_url": "https://www.toontownrewritten.com/api/status", "default": true }
+      ],
+      "client": {
+        "kind": "tarball",
+        "source_url": "https://www.toontownrewritten.com/play",
+        "install_hint": "Native client; Yonderloft fetches and wraps the Linux launcher."
+      },
+      "tags": ["client", "native"],
+      "homepage": "https://www.toontownrewritten.com/"
+    },
+    {
+      "id": "openfusion",
+      "name": "OpenFusion",
+      "category": "other",
+      "description": "An open-source revival of FusionFall, Cartoon Network's MMO, using a custom launcher and client.",
+      "art": "art/openfusion.png",
+      "runtime": "client",
+      "servers": [
+        { "name": "OpenFusion", "url": "https://github.com/OpenFusionProject/OpenFusion", "status_url": "https://github.com/OpenFusionProject/OpenFusion", "default": true }
+      ],
+      "client": {
+        "kind": "appimage_or_flatpak",
+        "source_url": "https://github.com/OpenFusionProject/OpenFusion/releases",
+        "install_hint": "Custom launcher fetches the original Unity client."
+      },
+      "tags": ["client", "unity"],
+      "homepage": "https://openfusionproject.github.io/"
+    },
+    {
+      "id": "panfu",
+      "name": "Panfu",
+      "category": "other",
+      "description": "A revival of the panda virtual world Panfu.",
+      "art": "art/panfu.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://panfu.us/", "status_url": "https://panfu.us/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash", "as2"],
+      "homepage": "https://panfu.us/"
+    },
+    {
+      "id": "nicktropolis-timewarp",
+      "name": "Nicktropolis Timewarp",
+      "category": "other",
+      "description": "A revival of Nickelodeon's Nicktropolis virtual world.",
+      "art": "art/nicktropolis-timewarp.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://nicktropolis.net/", "status_url": "https://nicktropolis.net/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash"],
+      "notes": "Verify live URL before launch."
+    }
+  ]
+}

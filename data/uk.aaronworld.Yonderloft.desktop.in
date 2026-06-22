@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Yonderloft
+GenericName=Retro MMO Launcher
+Comment=Play rewritten childhood MMOs and revival projects
+# Translators: search keywords, separated by semicolons, ending with one.
+Keywords=games;flash;ruffle;club penguin;moshi;revival;mmo;nostalgia;
+Exec=yonderloft
+Icon=uk.aaronworld.Yonderloft
+Terminal=false
+Type=Application
+Categories=Game;Launcher;
+StartupNotify=true
+StartupWMClass=uk.aaronworld.Yonderloft

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Yonderloft app icon — a glowing attic dormer window, lit from within at dusk.
+  Placeholder built to the GNOME app-icon grid (128px, 16px safe margin).
+  Replace with the App Icon Preview / Inkscape master before Flathub submission.
+-->
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Warm amber glow — gradient is allowed only on this "light" surface. -->
+    <linearGradient id="glow" x1="64" y1="34" x2="64" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD15C"/>
+      <stop offset="1" stop-color="#E5A50A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dusk frame: flat colour on the straight outer frame. -->
+  <rect x="22" y="20" width="84" height="92" rx="10" fill="#241F31"/>
+
+  <!-- Lit window opening with the amber glow. -->
+  <rect x="34" y="32" width="60" height="68" rx="5" fill="url(#glow)"/>
+
+  <!-- Muntins (window bars) in the dusk colour. -->
+  <rect x="61" y="32" width="6" height="68" fill="#241F31"/>
+  <rect x="34" y="63" width="60" height="6" fill="#241F31"/>
+
+  <!-- Sill with a darker front lip for Adwaita depth. -->
+  <rect x="20" y="100" width="88" height="10" rx="3" fill="#3A3349"/>
+  <rect x="20" y="106" width="88" height="6" rx="3" fill="#1B1726"/>
+</svg>

@@ -1,0 +1,31 @@
+# CI for Yonderloft. Two cheap gates that don't need the GTK stack, plus an
+# optional Flatpak build.
+
+stages:
+  - check
+
+# Validate the catalog against the schema + integrity rules. Runs on any change
+# to the catalog so community title MRs get checked automatically.
+catalog:
+  stage: check
+  image: python:3.12-slim
+  before_script:
+    - pip install --quiet jsonschema
+  script:
+    - python3 -m yonderloft.tools.validate_catalog catalog/manifest.json
+  variables:
+    PYTHONPATH: src
+  rules:
+    - changes:
+        - catalog/**/*
+        - src/yonderloft/tools/**/*
+
+# Lint the Python shell for syntax errors and undefined names.
+lint:
+  stage: check
+  image: python:3.12-slim
+  before_script:
+    - pip install --quiet pyflakes
+  script:
+    - python3 -m py_compile $(find src -name '*.py')
+    - python3 -m pyflakes src/yonderloft

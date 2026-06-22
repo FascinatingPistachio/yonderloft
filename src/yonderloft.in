@@ -1,0 +1,11 @@
+#!@PYTHON@
+# Yonderloft launcher — installed entry point.
+import os
+import sys
+
+# Make the installed package importable.
+sys.path.insert(1, '@pkgdatadir@')
+
+if __name__ == '__main__':
+    from yonderloft.main import main
+    sys.exit(main())

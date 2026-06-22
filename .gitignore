@@ -1,0 +1,23 @@
+# Build output
+/_build/
+/build/
+/builddir/
+.flatpak-builder/
+*.flatpak
+repo/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Generated catalog caches (local dev)
+/catalog/.cache/

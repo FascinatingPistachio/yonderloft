@@ -1,0 +1,68 @@
+/* Yonderloft — a quiet shell around loud old content.
+ * The amber is the single warm point; everything else stays neutral Adwaita. */
+
+@define-color loft_amber  #E5A50A;
+@define-color loft_dusk   #241F31;
+@define-color loft_paper  #FAF8F5;
+@define-color loft_slate  #5E5C64;
+@define-color loft_green  #2EC27E;
+@define-color loft_red    #E01B24;
+@define-color loft_orange #FF7800;
+
+/* Game card -------------------------------------------------------------- */
+.game-card {
+  padding: 0;
+  border-radius: 12px;
+  background: @card_bg_color;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.game-card:hover {
+  transform: translateY(-3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-card { transition: none; }
+  .game-card:hover { transform: none; }
+}
+
+.game-card .cover {
+  border-radius: 12px 12px 0 0;
+  background: @loft_dusk;
+  min-height: 150px;
+}
+
+.game-card .title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Technical metadata — the "this is a real tool" mono voice. */
+.mono,
+.tech-meta {
+  font-family: "Adwaita Mono", "Source Code Pro", monospace;
+  font-size: 0.85em;
+  color: @loft_slate;
+}
+
+/* Status dot ------------------------------------------------------------- */
+.status-dot {
+  min-width: 10px;
+  min-height: 10px;
+  border-radius: 999px;
+  background: @loft_slate;
+}
+.status-dot.online   { background: @loft_green; }
+.status-dot.unstable { background: @loft_orange; }
+.status-dot.offline  { background: @loft_red; }
+.status-dot.unknown  { background: @loft_slate; }
+
+/* The signature loft-window glow, reused in empty/loading states. */
+.loft-glow {
+  background: radial-gradient(circle at 50% 38%,
+    alpha(@loft_amber, 0.35) 0%,
+    alpha(@loft_amber, 0.0) 70%);
+}
+
+.runtime-badge {
+  font-size: 0.8em;
+  color: @loft_slate;
+}

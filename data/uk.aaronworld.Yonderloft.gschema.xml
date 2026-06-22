@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="yonderloft">
+  <schema id="uk.aaronworld.Yonderloft" path="/uk/aaronworld/Yonderloft/">
+
+    <key name="window-width" type="i">
+      <default>1100</default>
+      <summary>Main window width</summary>
+    </key>
+    <key name="window-height" type="i">
+      <default>720</default>
+      <summary>Main window height</summary>
+    </key>
+    <key name="window-maximized" type="b">
+      <default>false</default>
+      <summary>Main window maximized state</summary>
+    </key>
+
+    <key name="catalog-url" type="s">
+      <default>'https://gitlab.com/FascinatingPistachio/yonderloft/-/raw/main/catalog/manifest.json'</default>
+      <summary>URL of the remote catalog manifest</summary>
+      <description>
+        Where the app fetches the game catalog from. Falls back to the bundled
+        and cached copies when unreachable.
+      </description>
+    </key>
+
+    <key name="favorites" type="as">
+      <default>[]</default>
+      <summary>Title IDs the user has starred</summary>
+    </key>
+
+    <key name="recent" type="as">
+      <default>[]</default>
+      <summary>Recently played title IDs, most-recent first</summary>
+    </key>
+
+    <key name="last-catalog-refresh" type="x">
+      <default>0</default>
+      <summary>Unix time of the last successful catalog refresh</summary>
+    </key>
+
+  </schema>
+</schemalist>

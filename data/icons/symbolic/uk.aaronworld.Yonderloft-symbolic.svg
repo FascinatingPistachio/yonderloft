@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Symbolic variant: dormer-window outline, single monochrome stroke. -->
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#2e3436">
+    <path d="M3 2.5h10a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V3a.5.5 0 0 1 .5-.5zm.5 1V11.5h9V3.5z"/>
+    <path d="M7.5 3.5h1V11.5h-1z"/>
+    <path d="M3 7h10v1H3z"/>
+    <path d="M2 13h12v1H2z"/>
+  </g>
+</svg>

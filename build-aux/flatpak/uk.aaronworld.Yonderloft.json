@@ -1,0 +1,59 @@
+{
+  "id": "uk.aaronworld.Yonderloft",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "48",
+  "sdk": "org.gnome.Sdk",
+  "command": "yonderloft",
+  "finish-args": [
+    "--socket=wayland",
+    "--socket=fallback-x11",
+    "--device=dri",
+    "--socket=pulseaudio",
+    "--share=ipc",
+    "--share=network"
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/man",
+    "/share/doc",
+    "/share/gtk-doc",
+    "*.la",
+    "*.a"
+  ],
+  "modules": [
+    {
+      "name": "ruffle",
+      "comment": "Bundled self-hosted Ruffle (Rust/WASM Flash emulator, MIT/Apache). The ruffle runtime resolves it at <pkgdatadir>/ruffle. Pin to a tested release and fill in the real sha256 before publishing.",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -d /app/share/yonderloft/ruffle",
+        "cp -r ./* /app/share/yonderloft/ruffle/"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "archive-type": "zip",
+          "url": "https://github.com/ruffle-rs/ruffle/releases/download/nightly-2026-06-01/ruffle-nightly-2026_06_01-web-selfhosted.zip",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "x-checker-data": {
+            "type": "json",
+            "url": "https://api.github.com/repos/ruffle-rs/ruffle/releases/latest",
+            "version-query": ".tag_name",
+            "url-query": ".assets[] | select(.name | test(\"web-selfhosted.zip$\")) | .browser_download_url"
+          }
+        }
+      ]
+    },
+    {
+      "name": "yonderloft",
+      "buildsystem": "meson",
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../.."
+        }
+      ]
+    }
+  ]
+}
