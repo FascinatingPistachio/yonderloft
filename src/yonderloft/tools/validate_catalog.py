@@ -19,10 +19,13 @@ import os
 import sys
 
 
-def _schema_path() -> str:
-    here = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(here))))
-    return os.path.join(repo_root, "catalog", "schema.json")
+def _schema_path(manifest_path: str) -> str:
+    """Locate schema.json: next to the manifest first, then the bundled copy."""
+    sibling = os.path.join(os.path.dirname(os.path.abspath(manifest_path)), "schema.json")
+    if os.path.exists(sibling):
+        return sibling
+    from .. import config
+    return config.bundled_schema_path()
 
 
 def validate(manifest_path: str) -> tuple[list[str], list[str]]:
@@ -39,19 +42,21 @@ def validate(manifest_path: str) -> tuple[list[str], list[str]]:
     catalog_root = os.path.dirname(os.path.abspath(manifest_path))
 
     # 2. JSON Schema (optional dependency).
-    schema_path = _schema_path()
     try:
         import jsonschema  # type: ignore
-
-        with open(schema_path, "r", encoding="utf-8") as fh:
-            schema = json.load(fh)
-        validator = jsonschema.Draft202012Validator(schema)
-        for err in sorted(validator.iter_errors(manifest), key=lambda e: e.path):
-            loc = "/".join(str(p) for p in err.path) or "(root)"
-            errors.append(f"schema: {loc}: {err.message}")
     except ImportError:
         print("note: jsonschema not installed — skipping schema validation",
               file=sys.stderr)
+    else:
+        try:
+            with open(_schema_path(manifest_path), "r", encoding="utf-8") as fh:
+                schema = json.load(fh)
+            validator = jsonschema.Draft202012Validator(schema)
+            for err in sorted(validator.iter_errors(manifest), key=lambda e: list(e.path)):
+                loc = "/".join(str(p) for p in err.path) or "(root)"
+                errors.append(f"schema: {loc}: {err.message}")
+        except OSError as exc:
+            warnings.append(f"could not load schema for validation: {exc}")
 
     # 3. Cross-field integrity (catches things schema can't express).
     categories = {c["id"] for c in manifest.get("categories", [])}

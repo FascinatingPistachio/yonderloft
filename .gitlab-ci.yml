@@ -3,6 +3,7 @@
 
 stages:
   - check
+  - test
 
 # Validate the catalog against the schema + integrity rules. Runs on any change
 # to the catalog so community title MRs get checked automatically.
@@ -29,3 +30,13 @@ lint:
   script:
     - python3 -m py_compile $(find src -name '*.py')
     - python3 -m pyflakes src/yonderloft
+
+# Unit-test the GTK-free layer (models, catalog I/O, status, config, profiles,
+# validator). The GUI shell is covered by the Flatpak build, not here.
+pytest:
+  stage: test
+  image: python:3.12-slim
+  before_script:
+    - pip install --quiet pytest jsonschema
+  script:
+    - python3 -m pytest

@@ -25,6 +25,18 @@ class Status(str, Enum):
     OFFLINE = "offline"
 
 
+def classify_status(http_status: int) -> Status:
+    """Map an HTTP status code (0 = no response) to a badge state."""
+    if http_status == 0:
+        return Status.OFFLINE
+    if 200 <= http_status < 400:
+        return Status.ONLINE
+    if http_status in (408, 429, 502, 503, 504):
+        return Status.UNSTABLE
+    # 4xx that isn't rate-limiting: reachable but the endpoint is unhappy.
+    return Status.UNSTABLE if http_status < 500 else Status.OFFLINE
+
+
 @dataclass(frozen=True)
 class Server:
     name: str

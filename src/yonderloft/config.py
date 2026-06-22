@@ -27,26 +27,31 @@ except ImportError:
 
 def bundled_catalog_path() -> str:
     """Path to the manifest.json that ships with the app (offline seed)."""
-    if INSTALLED:
-        return os.path.join(PKGDATADIR, "catalog", "manifest.json")
     return os.path.join(PKGDATADIR, "catalog", "manifest.json")
 
 
 def bundled_schema_path() -> str:
-    if INSTALLED:
-        return os.path.join(PKGDATADIR, "catalog", "schema.json")
     return os.path.join(PKGDATADIR, "catalog", "schema.json")
 
 
+def _xdg_dir(env: str, default_subpath: str) -> str:
+    """Resolve an XDG base dir from the environment (stdlib only).
+
+    Matches GLib.get_user_{cache,data}_dir semantics — and inside the Flatpak
+    sandbox these env vars already point at the app's private dirs — without
+    pulling GLib into otherwise GTK-free code.
+    """
+    base = os.environ.get(env) or os.path.join(os.path.expanduser("~"), *default_subpath.split("/"))
+    return base
+
+
 def cache_dir() -> str:
-    from gi.repository import GLib  # lazy: keeps stdlib tools GTK-free
-    path = os.path.join(GLib.get_user_cache_dir(), "yonderloft")
+    path = os.path.join(_xdg_dir("XDG_CACHE_HOME", ".cache"), "yonderloft")
     os.makedirs(path, exist_ok=True)
     return path
 
 
 def data_dir() -> str:
-    from gi.repository import GLib  # lazy: keeps stdlib tools GTK-free
-    path = os.path.join(GLib.get_user_data_dir(), "yonderloft")
+    path = os.path.join(_xdg_dir("XDG_DATA_HOME", ".local/share"), "yonderloft")
     os.makedirs(path, exist_ok=True)
     return path

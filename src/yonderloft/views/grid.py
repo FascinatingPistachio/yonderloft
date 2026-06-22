@@ -5,7 +5,7 @@ which is what we use (libadwaita has no flow box of its own).
 """
 from __future__ import annotations
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Pango
 
 from ..models import Catalog, Status, Title
 from .widgets import StatusDot, runtime_label
@@ -38,7 +38,7 @@ class GameCard(Gtk.Button):
 
         name = Gtk.Label(label=title.name, xalign=0, wrap=True, lines=2)
         name.add_css_class("title")
-        name.set_ellipsize(3)  # PANGO_ELLIPSIZE_END
+        name.set_ellipsize(Pango.EllipsizeMode.END)
         box.append(name)
 
         meta = Gtk.Label(

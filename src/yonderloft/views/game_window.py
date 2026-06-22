@@ -26,7 +26,6 @@ class GameWindow(Adw.Window):
 
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
-        header.set_show_title(True)
 
         title_widget = Adw.WindowTitle(title=title.name, subtitle=server.name)
         header.set_title_widget(title_widget)

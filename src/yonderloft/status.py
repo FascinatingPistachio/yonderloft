@@ -15,7 +15,7 @@ import time
 from gi.repository import GLib, GObject, Soup
 
 from . import config
-from .models import Status
+from .models import Status, classify_status
 
 _TTL_SECONDS = 60
 _TIMEOUT_SECONDS = 8
@@ -73,18 +73,7 @@ class StatusPinger(GObject.Object):
         except GLib.Error:
             self._record(status_url, Status.OFFLINE)
             return
-        self._record(status_url, self._classify(code))
-
-    @staticmethod
-    def _classify(http_status: int) -> Status:
-        if http_status == 0:
-            return Status.OFFLINE
-        if 200 <= http_status < 400:
-            return Status.ONLINE
-        if http_status in (408, 429, 502, 503, 504):
-            return Status.UNSTABLE
-        # 4xx that isn't rate-limiting: reachable but the endpoint is unhappy.
-        return Status.UNSTABLE if http_status < 500 else Status.OFFLINE
+        self._record(status_url, classify_status(code))
 
     def _record(self, status_url: str, status: Status) -> None:
         self._cache[status_url] = (time.monotonic(), status)

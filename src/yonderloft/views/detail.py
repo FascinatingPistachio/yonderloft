@@ -6,7 +6,7 @@ status) in the mono face.
 """
 from __future__ import annotations
 
-from gi.repository import Adw, Gtk
+from gi.repository import Adw, Gtk, Pango
 
 from ..models import Server, Status, Title
 from ..runtimes import RuntimeNotReady
@@ -128,7 +128,7 @@ class DetailPage(Adw.NavigationPage):
         row = Adw.ActionRow(title=label)
         val = Gtk.Label(label=value, xalign=1, selectable=True)
         val.add_css_class("mono")
-        val.set_ellipsize(3)
+        val.set_ellipsize(Pango.EllipsizeMode.END)
         row.add_suffix(val)
         return row, val
 

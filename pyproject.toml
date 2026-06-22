@@ -1,0 +1,7 @@
+# Tooling config only — the app itself is built with Meson, not setuptools.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.pyflakes]
+# (pyflakes has no config; listed here for discoverability of the lint gate.)

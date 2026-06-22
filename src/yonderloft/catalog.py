@@ -10,13 +10,12 @@ Emits ``catalog-loaded`` with a :class:`~yonderloft.models.Catalog`, and
 """
 from __future__ import annotations
 
-import json
 import os
 from typing import Optional
 
 from gi.repository import GLib, GObject, Soup
 
-from . import config
+from . import catalog_io, config
 from .models import Catalog, UnsupportedSchema
 
 _CACHE_NAME = "manifest.json"
@@ -72,7 +71,7 @@ class CatalogService(GObject.Object):
             if status != Soup.Status.OK:
                 raise IOError(f"server returned HTTP {int(status)}")
             data = bytes_.get_data()
-            catalog = self._parse(data)
+            catalog = catalog_io.parse(data)
         except UnsupportedSchema as exc:
             # A newer manifest we can't read — keep whatever we already showed.
             if self._catalog is None:
@@ -86,20 +85,16 @@ class CatalogService(GObject.Object):
 
         # Success — persist to cache and publish.
         try:
-            self._write_cache(data)
+            catalog_io.write_cache(self.cache_path, data)
         except OSError:
             pass
         self._emit_loaded(catalog, "remote")
 
     def _load_local(self) -> tuple[Optional[Catalog], str]:
-        for path, source in ((self.cache_path, "cache"),
-                             (config.bundled_catalog_path(), "bundled")):
-            try:
-                with open(path, "rb") as fh:
-                    return self._parse(fh.read()), source
-            except (OSError, ValueError, UnsupportedSchema):
-                continue
-        return None, ""
+        return catalog_io.load_first_valid((
+            (self.cache_path, "cache"),
+            (config.bundled_catalog_path(), "bundled"),
+        ))
 
     def _load_fallback(self, error: str) -> None:
         catalog, source = self._load_local()
@@ -107,15 +102,6 @@ class CatalogService(GObject.Object):
             self._emit_loaded(catalog, source)
         else:
             self.emit("catalog-error", error)
-
-    def _parse(self, raw: bytes) -> Catalog:
-        return Catalog.from_dict(json.loads(raw))
-
-    def _write_cache(self, raw: bytes) -> None:
-        tmp = self.cache_path + ".tmp"
-        with open(tmp, "wb") as fh:
-            fh.write(raw)
-        os.replace(tmp, self.cache_path)
 
     def _emit_loaded(self, catalog: Catalog, source: str) -> None:
         self._catalog = catalog
