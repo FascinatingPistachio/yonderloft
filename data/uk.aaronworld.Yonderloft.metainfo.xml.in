@@ -36,16 +36,9 @@
 
   <launchable type="desktop-id">uk.aaronworld.Yonderloft.desktop</launchable>
 
-  <screenshots>
-    <screenshot type="default">
-      <image>https://aaronworld.uk/yonderloft/screenshots/grid.png</image>
-      <caption>The game grid with live status badges</caption>
-    </screenshot>
-    <screenshot>
-      <image>https://aaronworld.uk/yonderloft/screenshots/detail.png</image>
-      <caption>A title's detail view, with server picker and runtime disclosure</caption>
-    </screenshot>
-  </screenshots>
+  <!-- Screenshots are required for Flathub but must be real, fetchable images:
+       appstreamcli compose downloads them and rejects the component if they
+       404. Add them (hosted, or in-repo) before Flathub submission. -->
 
   <url type="homepage">https://aaronworld.uk/yonderloft</url>
   <url type="bugtracker">https://gitlab.com/FascinatingPistachio/yonderloft/-/issues</url>
