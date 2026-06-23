@@ -2,8 +2,9 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+  workflow_dispatch: {}
 
 jobs:
   build-and-release:
@@ -31,11 +32,40 @@ jobs:
           # Bundle it into a single transferable .flatpak file
           flatpak build-bundle repo Yonderloft.flatpak uk.aaronworld.Yonderloft
 
+      - name: Determine release tag
+        id: release-tag
+        run: |
+          set -euo pipefail
+          latest=$(curl -fsSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases?per_page=1" | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data[0]["tag_name"] if data else "")')
+          if [ -z "$latest" ]; then
+            version=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
+            tag="v$version"
+          else
+            tag=$(python3 - <<'PY'
+import re,sys
+latest=sys.argv[1]
+m=re.match(r'^v(\d+)\.(\d+)\.(\d+)$', latest)
+if m:
+    print(f'v{int(m.group(1))}.{int(m.group(2))}.{int(m.group(3))+1}')
+else:
+    print(latest)
+PY
+$latest)
+          fi
+          echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
+          if curl -fsSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$tag" >/dev/null 2>&1; then
+            echo "release_exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
+        if: steps.release-tag.outputs.release_exists == 'false'
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           generate_release_notes: true
+          tag_name: ${{ steps.release-tag.outputs.release_tag }}
+          name: Yonderloft ${{ steps.release-tag.outputs.release_tag }}
           files: |
             Yonderloft.flatpak
         env:
