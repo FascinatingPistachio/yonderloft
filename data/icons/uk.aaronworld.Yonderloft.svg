@@ -1,43 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Yonderloft — app icon. A warm, arched ATTIC window lit from within at dusk.
-  The arched top reads as an old loft/dormer window (not a plain window, not a
-  house), tying to "the attic where the old web lives on".
+  Yonderloft — app icon. A treasure chest of old games, lit from within: warm
+  amber light spilling from the seam. "Treasures of the old web, kept in the
+  loft." A fresh concept (no longer a window), still the dusk + amber palette.
 
-  GNOME HIG app-icon template (128px, flat colour on straight surfaces, the
-  amber gradient only on the curved/lit glass, a darker front lip on the sill
-  for Adwaita depth, no external drop shadow). PNG renditions come from this
-  master via build-aux/render-icon.py.
+  GNOME HIG app-icon template (128px, flat colour on straight surfaces, amber
+  gradient only on the glowing light, a darker front lip for Adwaita depth, no
+  external drop shadow). PNGs come from this master via build-aux/render-icon.py.
 -->
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="frame" x1="64" y1="20" x2="64" y2="104" gradientUnits="userSpaceOnUse">
+    <linearGradient id="chest" x1="64" y1="36" x2="64" y2="104" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#3A3252"/>
-      <stop offset="1" stop-color="#201B2D"/>
+      <stop offset="1" stop-color="#211C2E"/>
     </linearGradient>
-    <linearGradient id="sill" x1="64" y1="96" x2="64" y2="112" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4E4666"/>
-      <stop offset="1" stop-color="#2B2641"/>
-    </linearGradient>
-    <!-- Warm loft light: gradient lives only on the lit glass. -->
-    <radialGradient id="glass" cx="58" cy="52" r="50" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFF1C4"/>
-      <stop offset="0.45" stop-color="#FBC638"/>
+    <radialGradient id="glow" cx="64" cy="62" r="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF6D8"/>
+      <stop offset="0.5" stop-color="#FBC638"/>
       <stop offset="1" stop-color="#E5A50A"/>
     </radialGradient>
+    <linearGradient id="clasp" x1="64" y1="52" x2="64" y2="76" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFD15C"/>
+      <stop offset="1" stop-color="#E5A50A"/>
+    </linearGradient>
   </defs>
 
-  <!-- Window frame: straight sides, arched top. -->
-  <path d="M30 100 V56 a34 34 0 0 1 68 0 V100 Z" fill="url(#frame)"/>
+  <!-- Soft light spilling from the chest. -->
+  <ellipse cx="64" cy="60" rx="46" ry="20" fill="url(#glow)" opacity="0.35"/>
 
-  <!-- Lit glass, inset within the frame. -->
-  <path d="M40 98 V56 a24 24 0 0 1 48 0 V98 Z" fill="url(#glass)"/>
+  <!-- Domed lid. -->
+  <path d="M22 62 V56 Q22 36 64 36 Q106 36 106 56 V62 Z" fill="url(#chest)"/>
 
-  <!-- Muntins (window bars): a cross over the arched glass. -->
-  <rect x="61" y="33" width="6" height="65" fill="#231E33"/>
-  <rect x="40" y="74" width="48" height="6" fill="#231E33"/>
+  <!-- Glowing seam where the lid lifts. -->
+  <rect x="22" y="58" width="84" height="7" rx="3" fill="url(#glow)"/>
 
-  <!-- Sill with a darker front lip for Adwaita depth. -->
-  <rect x="24" y="97" width="80" height="13" rx="4" fill="url(#sill)"/>
-  <rect x="24" y="104" width="80" height="6" rx="3" fill="#181420"/>
+  <!-- Chest base. -->
+  <rect x="24" y="63" width="80" height="40" rx="8" fill="url(#chest)"/>
+
+  <!-- Metal bands (kept within the lid/base silhouette). -->
+  <rect x="38" y="49" width="7" height="54" fill="#1B1626" opacity="0.55"/>
+  <rect x="83" y="49" width="7" height="54" fill="#1B1626" opacity="0.55"/>
+
+  <!-- Gold clasp crossing the seam. -->
+  <rect x="56" y="55" width="16" height="20" rx="3" fill="url(#clasp)"/>
+  <rect x="61" y="62" width="6" height="7" rx="2" fill="#5A3A02"/>
+
+  <!-- Darker front lip for Adwaita depth. -->
+  <rect x="24" y="96" width="80" height="7" rx="3" fill="#181420"/>
 </svg>

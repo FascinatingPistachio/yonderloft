@@ -40,6 +40,8 @@ class YonderloftApplication(Adw.Application):
     def do_startup(self) -> None:
         Adw.Application.do_startup(self)
         self._load_css()
+        from .runtimes import webfilter
+        webfilter.compile()
 
     def do_activate(self) -> None:
         if self._window is None:

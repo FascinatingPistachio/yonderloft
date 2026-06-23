@@ -107,11 +107,11 @@
       "category": "experimental",
       "description": "A Club Penguin recreation aiming to rebuild the original experience era by era.",
       "art": "art/club-penguin-journey.png",
-      "runtime": "flash",
+      "runtime": "web",
       "servers": [
         {
           "name": "Main",
-          "url": "https://cpjourney.net/",
+          "url": "https://play.cpjourney.net/",
           "status_url": "https://cpjourney.net/",
           "default": true
         }
@@ -125,7 +125,7 @@
     {
       "id": "cpzero",
       "name": "CPZero",
-      "category": "experimental",
+      "category": "penguins",
       "description": "A Club Penguin private server focused on the classic island.",
       "art": "art/cpzero.png",
       "runtime": "flash",

@@ -60,5 +60,5 @@ class RuntimeRouter:
         view = build_page(session, tool.url, hide_selectors=tool.hide_selectors)
         pseudo = Server(name=tool.name, url=tool.url, status_url=tool.url)
         page = GamePage(self._app, title, pseudo, view,
-                        page_title=tool.name, allow_clear=False)
+                        page_title=tool.name, allow_clear=False, is_tool=True)
         self._app.window.play_game(page)

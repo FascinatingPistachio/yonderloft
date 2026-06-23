@@ -87,6 +87,8 @@ class RuffleRuntime(Runtime):
         view = make_webview(network_session)
 
         ucm = view.get_user_content_manager()
+        from . import webfilter
+        webfilter.apply_to(ucm)
         ucm.add_script(
             WebKit.UserScript.new(
                 _loader_script(_ruffle_config(ruffle_cfg.get("force_scale", "showAll"))),

@@ -6,7 +6,7 @@ status) in the mono face.
 """
 from __future__ import annotations
 
-from gi.repository import Adw, Gtk, Pango
+from gi.repository import Adw, Gio, Gtk, Pango
 
 from ..models import Server, Status, Title
 from ..runtimes import RuntimeNotReady
@@ -189,12 +189,25 @@ class DetailPage(Adw.NavigationPage):
             self._status_dot.set_status(status)
 
     def _on_play_clicked(self, _button) -> None:
-        # Record recency.
+        # Everything but offline-capable titles (e.g. Waddle) needs a connection.
+        needs_internet = "offline" not in self._title.tags
+        if needs_internet and not Gio.NetworkMonitor.get_default().get_network_available():
+            self._show_offline()
+            return
         self._remember_recent()
         try:
             self._app.router.launch(self._title, self._server)
         except RuntimeNotReady as exc:
             self._show_not_ready(exc)
+
+    def _show_offline(self) -> None:
+        dialog = Adw.AlertDialog(
+            heading=_("No internet connection"),
+            body=_("%s needs an internet connection to play, and you appear to "
+                   "be offline. Reconnect and try again.") % self._title.name,
+        )
+        dialog.add_response("ok", _("OK"))
+        dialog.present(self.get_root())
 
     def _remember_recent(self) -> None:
         settings = self._app.settings

@@ -89,6 +89,8 @@ def build_page(network_session, url: str, *, isolate_selector: str = "",
                hide_selectors=()) -> "WebKit.WebView":
     view = make_webview(network_session)
     ucm = view.get_user_content_manager()
+    from . import webfilter
+    webfilter.apply_to(ucm)
     if isolate_selector:
         ucm.add_script(_isolation_script(isolate_selector))
     if hide_selectors:

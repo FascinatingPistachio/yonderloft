@@ -1,13 +1,12 @@
 """A game (or web tool) playing inside the main window, as a page on the content
 nav stack.
 
-Pushed onto the main window's AdwNavigationView, so it gets a back button and
-feels like one app. Thin chrome: title, an "open in browser" fallback, and a
-per-title "clear data" action over the embedded view.
-
-Links that leave the title's own site open in the default browser (with an
-Adwaita confirmation, unless turned off in Preferences) rather than navigating
-away inside the embedded view.
+Link handling:
+* Navigating to one of the title's declared tools (e.g. its register page)
+  opens that tool inside Yonderloft (navbar hidden) instead of in the game view.
+* Links that leave the title's own site open in the default browser, behind an
+  Adwaita confirmation (unless turned off in Preferences). Only one confirmation
+  shows at a time; if several pile up, a red "Close all" clears them.
 """
 from __future__ import annotations
 
@@ -16,23 +15,28 @@ from urllib.parse import urlsplit
 import gi
 
 gi.require_version("WebKit", "6.0")
-from gi.repository import Adw, Gtk, WebKit
+from gi.repository import Adw, GLib, Gtk, WebKit
 
 from ..models import Server, Title
 
 _ = __import__("gettext").gettext
+_MAX_QUEUE = 20
 
 
 class GamePage(Adw.NavigationPage):
     def __init__(self, application, title: Title, server: Server, view,
-                 page_title: str | None = None, allow_clear: bool = True) -> None:
+                 page_title: str | None = None, allow_clear: bool = True,
+                 is_tool: bool = False) -> None:
         super().__init__(title=page_title or title.name)
-        self.set_tag(f"game-{title.id}")
+        self.set_tag(f"game-{title.id}" + ("-tool" if is_tool else ""))
         self._app = application
         self._title = title
         self._server = server
         self._view = view
+        self._is_tool = is_tool
         self._allowed_hosts = self._compute_allowed_hosts(title)
+        self._ext_queue: list[str] = []
+        self._ext_dialog_open = False
 
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
@@ -58,7 +62,7 @@ class GamePage(Adw.NavigationPage):
 
         view.connect("decide-policy", self._on_decide_policy)
 
-    # -- External-link handling --------------------------------------------
+    # -- Navigation policy --------------------------------------------------
     @staticmethod
     def _compute_allowed_hosts(title: Title) -> set[str]:
         hosts: set[str] = set()
@@ -75,25 +79,51 @@ class GamePage(Adw.NavigationPage):
     def _is_allowed(self, host: str) -> bool:
         return any(host == a or host.endswith("." + a) for a in self._allowed_hosts)
 
+    def _matching_tool(self, uri: str):
+        for tool in self._title.tools:
+            if uri.rstrip("/").startswith(tool.url.rstrip("/")):
+                return tool
+        return None
+
     def _on_decide_policy(self, _view, decision, decision_type) -> bool:
         if decision_type != WebKit.PolicyDecisionType.NAVIGATION_ACTION:
             return False
-        action = decision.get_navigation_action()
-        uri = action.get_request().get_uri()
+        uri = decision.get_navigation_action().get_request().get_uri()
         if not uri or not uri.startswith(("http://", "https://")):
             return False
+
+        # A link to one of this title's tools opens the tool (clean) in-app,
+        # not in the game view. (Not while already inside that tool page.)
+        if not self._is_tool:
+            tool = self._matching_tool(uri)
+            if tool is not None:
+                decision.ignore()
+                self._app.router.launch_tool(self._title, tool)
+                return True
+
         host = urlsplit(uri).hostname or ""
         if self._is_allowed(host):
             return False  # same site — navigate normally in-app
-        # External: don't navigate inside the game; open in the browser instead.
         decision.ignore()
-        if self._app.settings.get_boolean("confirm-external-links"):
-            self._confirm_external(uri)
-        else:
-            self._open_external(uri)
+        self._enqueue_external(uri)
         return True
 
-    def _confirm_external(self, uri: str) -> None:
+    # -- External-link confirmations (one at a time) -----------------------
+    def _enqueue_external(self, uri: str) -> None:
+        if not self._app.settings.get_boolean("confirm-external-links"):
+            self._open_external(uri)
+            return
+        if uri in self._ext_queue or len(self._ext_queue) >= _MAX_QUEUE:
+            return
+        self._ext_queue.append(uri)
+        if not self._ext_dialog_open:
+            self._show_next_external()
+
+    def _show_next_external(self) -> bool:
+        if not self._ext_queue:
+            return GLib.SOURCE_REMOVE
+        uri = self._ext_queue[0]
+        self._ext_dialog_open = True
         dialog = Adw.AlertDialog(
             heading=_("Leave Yonderloft?"),
             body=_("This link opens in your browser:\n\n%s") % uri,
@@ -101,13 +131,25 @@ class GamePage(Adw.NavigationPage):
         dialog.add_response("back", _("Go back"))
         dialog.add_response("open", _("Continue"))
         dialog.set_response_appearance("open", Adw.ResponseAppearance.SUGGESTED)
+        if len(self._ext_queue) > 1:
+            dialog.add_response("closeall",
+                                _("Close all (%d)") % len(self._ext_queue))
+            dialog.set_response_appearance("closeall",
+                                           Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("back")
-        dialog.connect("response", self._on_confirm_response, uri)
+        dialog.connect("response", self._on_ext_response)
         dialog.present(self.get_root())
+        return GLib.SOURCE_REMOVE
 
-    def _on_confirm_response(self, _dialog, response, uri) -> None:
-        if response == "open":
+    def _on_ext_response(self, _dialog, response) -> None:
+        self._ext_dialog_open = False
+        uri = self._ext_queue.pop(0) if self._ext_queue else None
+        if response == "open" and uri:
             self._open_external(uri)
+        elif response == "closeall":
+            self._ext_queue.clear()
+        if self._ext_queue:
+            GLib.idle_add(self._show_next_external)
 
     def _open_external(self, uri: str) -> None:
         Gtk.UriLauncher.new(uri).launch(self.get_root(), None, None)
