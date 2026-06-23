@@ -17,7 +17,7 @@
       "art": "art/new-club-penguin.png",
       "runtime": "flash",
       "servers": [
-        { "name": "Main", "url": "https://newcp.net/", "status_url": "https://newcp.net/", "default": true }
+        { "name": "Main", "url": "https://newcp.net/play/", "status_url": "https://newcp.net/", "default": true }
       ],
       "tags": ["flash", "as3"],
       "notes": "AS3 — played through Ruffle, whose AS3 coverage is still improving. If it doesn't load, use Open in browser.",
@@ -86,15 +86,19 @@
       "id": "bin-weevils-rewritten",
       "name": "Bin Weevils Rewritten",
       "category": "pets_monsters",
-      "description": "A revival of the Bin Weevils virtual world for tending your nest and exploring Binweevingdom.",
+      "description": "A revival of the Bin Weevils virtual world for tending your nest and exploring Binweevingdom. Ships its own native Linux client.",
       "art": "art/bin-weevils-rewritten.png",
-      "runtime": "ruffle",
+      "runtime": "client",
       "servers": [
-        { "name": "Main", "url": "https://binweevilsrewritten.com/", "status_url": "https://binweevilsrewritten.com/", "default": true }
+        { "name": "Main", "url": "https://play.binweevils.app/download/", "status_url": "https://play.binweevils.app/", "default": true }
       ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash", "as2"],
-      "notes": "Runtime provisional pending Ruffle verification (README §6 action item)."
+      "client": {
+        "kind": "tarball",
+        "source_url": "https://github.com/BWRewritten/Bin-Weevils-Rewritten-Client/releases",
+        "install_hint": "Native Linux client (Electron). Yonderloft fetches the latest release, unpacks it, and launches it."
+      },
+      "tags": ["client", "native", "electron"],
+      "homepage": "https://play.binweevils.app/"
     },
     {
       "id": "we-the-pixies",

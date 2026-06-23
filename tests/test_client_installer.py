@@ -80,3 +80,85 @@ def test_normalize_version(v, expected):
 ])
 def test_is_newer(remote, local, newer):
     assert ci.is_newer(remote, local) is newer
+
+
+# -- asset_kind / pick_asset ------------------------------------------------
+
+@pytest.mark.parametrize("name,kind", [
+    ("App-x86_64.AppImage", "appimage"),
+    ("BWR_Installer_1.0.4-x64-Manual-Linux.tar.xz", "tarball"),
+    ("client-linux.tar.gz", "tarball"),
+    ("BWR_Installer_1.0.4-amd64.deb", None),       # .deb not auto-run
+    ("Setup-Windows.tar.gz", None),                # windows tarball skipped
+    ("App-mac.tar.gz", None),                       # mac tarball skipped
+    ("readme.txt", None),
+])
+def test_asset_kind(name, kind):
+    assert ci.asset_kind(name) == kind
+
+
+def test_pick_asset_prefers_appimage_over_tarball():
+    release = {"tag_name": "v2", "assets": [
+        {"name": "App-linux.tar.gz", "browser_download_url": "https://x/t", "size": 1},
+        {"name": "App-x86_64.AppImage", "browser_download_url": "https://x/a", "size": 2},
+    ]}
+    picked = ci.pick_asset(release)
+    assert picked["kind"] == "appimage" and picked["url"].endswith("/a")
+
+
+def test_pick_asset_takes_linux_tarball_when_no_appimage():
+    # Mirrors the real Bin Weevils Rewritten 1.0.4 asset list.
+    release = {"tag_name": "1.0.4", "assets": [
+        {"name": "BWR_Installer_1.0.4-amd64.deb", "browser_download_url": "https://x/d", "size": 1},
+        {"name": "BWR_Installer_1.0.4-ia32.exe", "browser_download_url": "https://x/e", "size": 1},
+        {"name": "BWR_Installer_1.0.4-x64-Manual-Linux.tar.xz", "browser_download_url": "https://x/t", "size": 2},
+    ]}
+    picked = ci.pick_asset(release)
+    assert picked["kind"] == "tarball"
+    assert picked["url"].endswith("/t")
+    assert picked["version"] == "1.0.4"
+
+
+def test_pick_asset_none_when_no_linux_asset():
+    release = {"tag_name": "v1", "assets": [
+        {"name": "win.exe", "browser_download_url": "u"},
+        {"name": "mac.dmg", "browser_download_url": "u"},
+    ]}
+    assert ci.pick_asset(release) is None
+
+
+# -- find_launch_target -----------------------------------------------------
+
+def _make_executable(path):
+    import os
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"\x7fELF")
+    os.chmod(path, 0o755)
+
+
+def test_find_launch_target_picks_electron_binary(tmp_path):
+    # Mirror the BWR tarball layout.
+    root = tmp_path / "BWR Installer 1.0.4-x64"
+    _make_executable(root / "bwrewritten")
+    _make_executable(root / "chrome-sandbox")            # helper, excluded
+    _make_executable(root / "chrome_crashpad_handler")   # helper, excluded
+    _make_executable(root / "libffmpeg.so")              # library, excluded by ext
+    (root / "resources" / "app").mkdir(parents=True)
+    (root / "resources.pak").write_bytes(b"x")
+    target = ci.find_launch_target(str(root), "Bin Weevils Rewritten")
+    assert target is not None and target.endswith("/bwrewritten")
+
+
+def test_find_launch_target_prefers_hint_match(tmp_path):
+    root = tmp_path / "app"
+    _make_executable(root / "launcher")
+    _make_executable(root / "binweevils")  # matches hint token
+    target = ci.find_launch_target(str(root), "Bin Weevils")
+    assert target.endswith("/binweevils")
+
+
+def test_find_launch_target_none_when_no_executable(tmp_path):
+    root = tmp_path / "app"
+    root.mkdir()
+    (root / "data.pak").write_bytes(b"x")
+    assert ci.find_launch_target(str(root), "x") is None

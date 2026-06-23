@@ -5,11 +5,11 @@
 #   build   → build the Flatpak bundle            (MRs, default branch, tags)
 #   release → auto-publish a GitLab Release        (default branch + tags)
 #
-# Releases are AUTOMATIC: the version comes from a tag (vX.Y.Z) or, on the
-# default branch, from meson.build. If a Release for that version already
-# exists the job skips, so ordinary pushes do nothing — but bumping `version:`
-# in meson.build (or pushing a tag) publishes a new Release with the .flatpak
-# attached, no manual steps.
+# Releases are AUTOMATIC, one per commit: each push to the default branch
+# publishes a new Release whose version is the previous release's patch + 1
+# (v0.1.0 -> v0.1.1 -> v0.1.2 ...), with the .flatpak attached. Re-running a
+# pipeline for an already-released commit is a no-op. Pushing a tag (vX.Y.Z)
+# overrides the version.
 
 stages:
   - check
@@ -115,29 +115,46 @@ release:
     - if: "$CI_COMMIT_TAG"
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
   script:
-    # No `set -e` / pipelines here: a `sed | head` that closes the pipe early
-    # raises SIGPIPE and busybox sh exits 141, failing the job even though the
-    # release was created. Resolve the version with awk (no pipe) and check
-    # each step's status explicitly.
+    # Avoid `set -e` + shell pipelines that can SIGPIPE (exit 141) and fail the
+    # job after the release is already created; check each step explicitly.
     - |
-      apk add --no-cache curl >/dev/null 2>&1 || { echo "could not install curl"; exit 1; }
+      apk add --no-cache curl jq >/dev/null 2>&1 || { echo "could not install tools"; exit 1; }
+      API="$CI_API_V4_URL/projects/$CI_PROJECT_ID"
 
+      # One release per commit: if this commit is already released, do nothing
+      # (so re-running a pipeline doesn't create a duplicate).
+      if [ -z "$CI_COMMIT_TAG" ]; then
+        ALREADY=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" "$API/releases?per_page=100" \
+          | jq -r --arg sha "$CI_COMMIT_SHA" '[.[] | select(.commit.id==$sha)] | length')
+        if [ "$ALREADY" != "0" ] && [ "$ALREADY" != "" ]; then
+          echo "This commit is already released — nothing to do."
+          exit 0
+        fi
+      fi
+
+      # Resolve the version: a pushed tag wins; otherwise auto-increment the
+      # patch of the latest release (v0.1.0 -> v0.1.1 -> v0.1.2 ...). First ever
+      # release falls back to meson.build's version.
       if [ -n "$CI_COMMIT_TAG" ]; then
         TAG="$CI_COMMIT_TAG"
       else
-        VERSION=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
-        TAG="v${VERSION}"
+        LATEST=$(curl -s --header "JOB-TOKEN: $CI_JOB_TOKEN" "$API/releases?per_page=1" \
+          | jq -r 'if length>0 then .[0].tag_name else "" end')
+        if [ -z "$LATEST" ] || [ "$LATEST" = "null" ]; then
+          BASE=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
+          TAG="v$BASE"
+        else
+          ver=${LATEST#v}
+          MAJOR=$(echo "$ver" | cut -d. -f1)
+          MINOR=$(echo "$ver" | cut -d. -f2)
+          PATCH=$(echo "$ver" | cut -d. -f3)
+          [ -z "$PATCH" ] && PATCH=0
+          TAG="v$MAJOR.$MINOR.$((PATCH + 1))"
+        fi
       fi
-      echo "Resolved release tag: $TAG"
+      echo "Release tag: $TAG"
 
-      CODE=$(curl -s -o /dev/null -w "%{http_code}" --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases/$TAG")
-      if [ "$CODE" = "200" ]; then
-        echo "Release $TAG already exists — nothing to do."
-        exit 0
-      fi
-
-      PACKAGE_URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/yonderloft/$TAG/$BUNDLE"
+      PACKAGE_URL="$API/packages/generic/yonderloft/$TAG/$BUNDLE"
       echo "Uploading $BUNDLE -> $PACKAGE_URL"
       curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" \
         --upload-file "$BUNDLE" "$PACKAGE_URL" || { echo "upload failed"; exit 1; }
