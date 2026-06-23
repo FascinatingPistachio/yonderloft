@@ -13,8 +13,13 @@ from .widgets import StatusDot, runtime_label
 _ = __import__("gettext").gettext
 
 
+_COVER_W = 232
+_COVER_H = 132  # ~16:9 banner, matches typical fetched og:image art
+
+
 class GameCard(Gtk.Button):
-    """A single game card. A flat button so the whole card is one click target."""
+    """A single game card: a banner cover with overlaid status/runtime chips and
+    a title beneath. A flat button so the whole card is one click target."""
 
     def __init__(self, title: Title, category_name: str, art_service=None) -> None:
         super().__init__()
@@ -22,20 +27,40 @@ class GameCard(Gtk.Button):
         self.add_css_class("game-card")
         self.add_css_class("flat")
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        box.set_size_request(190, -1)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        box.set_size_request(_COVER_W, -1)
 
-        # Cover — placeholder lit-window glow until art loads, then swapped for
-        # the fetched cover image.
+        # Cover: an overlay of the art (or lit-window placeholder) with a bottom
+        # scrim, a runtime chip, and a live status chip.
+        overlay = Gtk.Overlay()
+        overlay.set_size_request(_COVER_W, _COVER_H)
+
         self._cover = Gtk.Box()
         self._cover.add_css_class("cover")
         self._cover.add_css_class("loft-glow")
-        self._cover.set_size_request(190, 150)
-        initial = Gtk.Label(label=title.name[:1].upper())
+        self._cover.set_size_request(_COVER_W, _COVER_H)
+        initial = Gtk.Label(label=title.name[:1].upper(), vexpand=True)
         initial.add_css_class("title-1")
-        initial.set_vexpand(True)
         self._cover.append(initial)
-        box.append(self._cover)
+        overlay.set_child(self._cover)
+
+        scrim = Gtk.Box(valign=Gtk.Align.END)
+        scrim.add_css_class("cover-scrim")
+        scrim.set_size_request(-1, 48)
+        overlay.add_overlay(scrim)
+
+        runtime_chip = Gtk.Label(label=runtime_label(title.runtime),
+                                 halign=Gtk.Align.START, valign=Gtk.Align.END)
+        runtime_chip.add_css_class("cover-chip")
+        overlay.add_overlay(runtime_chip)
+
+        self.status_dot = StatusDot()
+        self.status_dot.add_css_class("cover-chip")
+        self.status_dot.set_halign(Gtk.Align.END)
+        self.status_dot.set_valign(Gtk.Align.START)
+        overlay.add_overlay(self.status_dot)
+
+        box.append(overlay)
 
         if art_service is not None:
             art_service.load(title, self._on_art_loaded)
@@ -45,14 +70,9 @@ class GameCard(Gtk.Button):
         name.set_ellipsize(Pango.EllipsizeMode.END)
         box.append(name)
 
-        meta = Gtk.Label(
-            label=f"{category_name} · {runtime_label(title.runtime)}", xalign=0
-        )
-        meta.add_css_class("runtime-badge")
-        box.append(meta)
-
-        self.status_dot = StatusDot()
-        box.append(self.status_dot)
+        category = Gtk.Label(label=category_name, xalign=0)
+        category.add_css_class("runtime-badge")
+        box.append(category)
 
         self.set_child(box)
 
@@ -66,7 +86,7 @@ class GameCard(Gtk.Button):
             child = nxt
         picture = Gtk.Picture(paintable=paintable)
         picture.set_content_fit(Gtk.ContentFit.COVER)
-        picture.set_size_request(190, 150)
+        picture.set_size_request(_COVER_W, _COVER_H)
         picture.add_css_class("cover")
         self._cover.remove_css_class("loft-glow")
         self._cover.append(picture)

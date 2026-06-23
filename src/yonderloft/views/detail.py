@@ -25,7 +25,7 @@ class DetailPage(Adw.NavigationPage):
         toolbar = Adw.ToolbarView()
         toolbar.add_top_bar(Adw.HeaderBar())
 
-        clamp = Adw.Clamp(maximum_size=720, margin_top=24, margin_bottom=24,
+        clamp = Adw.Clamp(maximum_size=820, margin_top=20, margin_bottom=24,
                           margin_start=12, margin_end=12)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
 
@@ -34,7 +34,6 @@ class DetailPage(Adw.NavigationPage):
             desc = Gtk.Label(label=title.description, wrap=True, xalign=0)
             box.append(desc)
         box.append(self._build_server_picker())
-        box.append(self._build_play_button())
         box.append(self._build_disclosures())
 
         clamp.set_child(box)
@@ -49,31 +48,51 @@ class DetailPage(Adw.NavigationPage):
 
     # -- Sections -----------------------------------------------------------
     def _build_hero(self, category_name: str) -> Gtk.Widget:
-        hero = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        # Immersive banner: the art fills the hero; a scrim darkens the lower
+        # half so the title, status and a prominent amber Play sit over it.
+        overlay = Gtk.Overlay()
+        overlay.add_css_class("hero")
+        overlay.set_size_request(-1, 300)
+
         self._art_box = Gtk.Box()
-        self._art_box.add_css_class("cover")
+        self._art_box.add_css_class("hero")
         self._art_box.add_css_class("loft-glow")
-        self._art_box.set_size_request(-1, 220)
+        self._art_box.set_size_request(-1, 300)
         initial = Gtk.Label(label=self._title.name[:1].upper(), vexpand=True)
         initial.add_css_class("title-1")
         self._art_box.append(initial)
-        hero.append(self._art_box)
-        self._app.art.load(self._title, self._on_art_loaded)
+        overlay.set_child(self._art_box)
 
-        name = Gtk.Label(label=self._title.name, xalign=0)
+        scrim = Gtk.Box()
+        scrim.add_css_class("hero-scrim")
+        overlay.add_overlay(scrim)
+
+        bar = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12,
+                      valign=Gtk.Align.END, margin_start=22, margin_end=22,
+                      margin_top=18, margin_bottom=20)
+        info = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5,
+                       hexpand=True, valign=Gtk.Align.END)
+        name = Gtk.Label(label=self._title.name, xalign=0, wrap=True)
+        name.add_css_class("hero-title")
         name.add_css_class("title-1")
-        hero.append(name)
-
-        meta = Gtk.Label(
+        info.append(name)
+        sub = Gtk.Label(
             label=f"{category_name} · {runtime_label(self._title.runtime)}",
-            xalign=0,
-        )
-        meta.add_css_class("dim-label")
-        hero.append(meta)
-
+            xalign=0)
+        sub.add_css_class("hero-sub")
+        info.append(sub)
         self._status_dot = StatusDot(self._app.status.cached(self._server.status_url))
-        hero.append(self._status_dot)
-        return hero
+        info.append(self._status_dot)
+        bar.append(info)
+
+        self._play = Gtk.Button(label=_("Play"), valign=Gtk.Align.END)
+        self._play.add_css_class("loft-play")
+        self._play.connect("clicked", self._on_play_clicked)
+        bar.append(self._play)
+        overlay.add_overlay(bar)
+
+        self._app.art.load(self._title, self._on_art_loaded)
+        return overlay
 
     def _on_art_loaded(self, paintable) -> None:
         if paintable is None:
@@ -85,8 +104,8 @@ class DetailPage(Adw.NavigationPage):
             child = nxt
         picture = Gtk.Picture(paintable=paintable)
         picture.set_content_fit(Gtk.ContentFit.COVER)
-        picture.set_size_request(-1, 220)
-        picture.add_css_class("cover")
+        picture.set_size_request(-1, 300)
+        picture.add_css_class("hero")
         self._art_box.remove_css_class("loft-glow")
         self._art_box.append(picture)
 
@@ -107,14 +126,6 @@ class DetailPage(Adw.NavigationPage):
         combo.connect("notify::selected", self._on_server_selected)
         group.add(combo)
         return group
-
-    def _build_play_button(self) -> Gtk.Widget:
-        self._play = Gtk.Button(label=_("Play"))
-        self._play.add_css_class("suggested-action")
-        self._play.add_css_class("pill")
-        self._play.set_halign(Gtk.Align.CENTER)
-        self._play.connect("clicked", self._on_play_clicked)
-        return self._play
 
     def _build_disclosures(self) -> Gtk.Widget:
         group = Adw.PreferencesGroup(title=_("Under the hood"))
