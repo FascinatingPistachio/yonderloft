@@ -43,7 +43,7 @@ jobs:
             version=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
             tag="v$version"
           else
-            tag=$(python3 - <<'PY'
+            tag=$(python3 - "$latest" <<'PY'
 import re,sys
 latest=sys.argv[1]
 m=re.match(r'^v(\d+)\.(\d+)\.(\d+)$', latest)
@@ -52,7 +52,7 @@ if m:
 else:
     print(latest)
 PY
-$latest)
+)
           fi
           echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
           status=$(curl -sSL -o /dev/null -w '%{http_code}' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$tag")
