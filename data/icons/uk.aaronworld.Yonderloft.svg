@@ -1,29 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Yonderloft app icon — a glowing attic dormer window, lit from within at dusk.
-  Placeholder built to the GNOME app-icon grid (128px, 16px safe margin).
-  Replace with the App Icon Preview / Inkscape master before Flathub submission.
+  Yonderloft — app icon. A glowing attic dormer window, lit from within at dusk.
+
+  Drawn to the GNOME HIG app-icon template (128px, flat colour on straight
+  surfaces, gradients only on the curved/lit glass, a darker front lip on the
+  sill for Adwaita depth, no external drop shadow). Reads cleanly on Adwaita and
+  Breeze (KDE), and satisfies Flathub's icon rules. PNG renditions are produced
+  from this master with build-aux/render-icon.py.
 -->
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- Warm amber glow — gradient is allowed only on this "light" surface. -->
-    <linearGradient id="glow" x1="64" y1="34" x2="64" y2="104" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFD15C"/>
-      <stop offset="1" stop-color="#E5A50A"/>
+    <linearGradient id="frame" x1="64" y1="14" x2="64" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#352E4B"/>
+      <stop offset="1" stop-color="#221D30"/>
     </linearGradient>
+    <linearGradient id="sill" x1="64" y1="95" x2="64" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4A4361"/>
+      <stop offset="1" stop-color="#2B2641"/>
+    </linearGradient>
+    <!-- Warm loft light. Gradient lives only on this curved/lit surface. -->
+    <radialGradient id="glass" cx="64" cy="40" r="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFEAAE"/>
+      <stop offset="0.5" stop-color="#F7BE26"/>
+      <stop offset="1" stop-color="#E5A50A"/>
+    </radialGradient>
   </defs>
 
-  <!-- Dusk frame: flat colour on the straight outer frame. -->
-  <rect x="22" y="20" width="84" height="92" rx="10" fill="#241F31"/>
+  <!-- Rim-light: a slightly lighter plate peeking 2px above the frame. -->
+  <rect x="24" y="14" width="80" height="90" rx="18" fill="#3F3759"/>
 
-  <!-- Lit window opening with the amber glow. -->
-  <rect x="34" y="32" width="60" height="68" rx="5" fill="url(#glow)"/>
+  <!-- Dusk window frame. -->
+  <rect x="24" y="16" width="80" height="88" rx="17" fill="url(#frame)"/>
 
-  <!-- Muntins (window bars) in the dusk colour. -->
-  <rect x="61" y="32" width="6" height="68" fill="#241F31"/>
-  <rect x="34" y="63" width="60" height="6" fill="#241F31"/>
+  <!-- Lit glass. -->
+  <rect x="34" y="26" width="60" height="64" rx="8" fill="url(#glass)"/>
+
+  <!-- A brighter core where the light sits, kept inside the glass. -->
+  <ellipse cx="58" cy="44" rx="22" ry="20" fill="#FFF3CC" opacity="0.45"/>
+
+  <!-- Muntins (window bars), in the dusk colour. -->
+  <rect x="61" y="26" width="6" height="64" fill="#231E32"/>
+  <rect x="34" y="55" width="60" height="6" fill="#231E32"/>
 
   <!-- Sill with a darker front lip for Adwaita depth. -->
-  <rect x="20" y="100" width="88" height="10" rx="3" fill="#3A3349"/>
-  <rect x="20" y="106" width="88" height="6" rx="3" fill="#1B1726"/>
+  <rect x="19" y="94" width="90" height="13" rx="4" fill="url(#sill)"/>
+  <rect x="19" y="101" width="90" height="6" rx="3" fill="#191523"/>
 </svg>
