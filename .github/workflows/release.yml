@@ -13,19 +13,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install flatpak dependencies and configure Flathub
-      - name: Install Flatpak dependencies
+      - name: Install Flatpak and Builder
         run: |
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
-          sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          # Add flathub specifically for the current user
+          flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-      - name: Build Flatpak
-        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: Yonderloft.flatpak
-          manifest-path: build-aux/flatpak/uk.aaronworld.Yonderloft.json
-          cache-key: flatpak-builder-${{ github.sha }}
+      - name: Build Flatpak Bundle
+        run: |
+          # Install the required GNOME SDK and Platform locally for the user
+          flatpak --user install -y flathub org.gnome.Sdk//48 org.gnome.Platform//48
+          
+          # Build the application
+          flatpak-builder --user --force-clean --repo=repo build-dir build-aux/flatpak/uk.aaronworld.Yonderloft.json
+          
+          # Bundle it into a single transferable .flatpak file
+          flatpak build-bundle repo Yonderloft.flatpak uk.aaronworld.Yonderloft
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
