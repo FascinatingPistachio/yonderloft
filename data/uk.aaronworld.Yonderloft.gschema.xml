@@ -39,5 +39,15 @@
       <summary>Unix time of the last successful catalog refresh</summary>
     </key>
 
+    <key name="confirm-external-links" type="b">
+      <default>true</default>
+      <summary>Confirm before opening external links in the browser</summary>
+      <description>
+        When a game links somewhere off its own site, ask before leaving
+        Yonderloft to open it in the default browser. Turn off to open external
+        links without a confirmation.
+      </description>
+    </key>
+
   </schema>
 </schemalist>

@@ -22,7 +22,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_ID = "uk.aaronworld.Yonderloft"
 SVG = os.path.join(ROOT, "data", "icons", f"{APP_ID}.svg")
 ICONS_DIR = os.path.join(ROOT, "data", "icons")
-SIZES = (128, 256)
+SIZES = (48, 64, 128, 256)
 
 
 def main() -> int:

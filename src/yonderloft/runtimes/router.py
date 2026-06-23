@@ -47,11 +47,18 @@ class RuntimeRouter:
         view = backend.build_view(title, server, session)
 
         from ..views.game_page import GamePage
-        page = GamePage(
-            application=self._app,
-            title=title,
-            server=server,
-            view=view,
-            security_note=backend.security_note,
-        )
+        page = GamePage(self._app, title, server, view)
+        self._app.window.play_game(page)
+
+    def launch_tool(self, title: Title, tool) -> None:
+        """Open a title's web tool (e.g. its register page) inside the window."""
+        from ..models import Server
+        from ..views.game_page import GamePage
+        from .web import build_page
+
+        session = self._app.profiles.make_web_session(title.id)
+        view = build_page(session, tool.url, hide_selectors=tool.hide_selectors)
+        pseudo = Server(name=tool.name, url=tool.url, status_url=tool.url)
+        page = GamePage(self._app, title, pseudo, view,
+                        page_title=tool.name, allow_clear=False)
         self._app.window.play_game(page)

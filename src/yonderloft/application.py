@@ -52,6 +52,7 @@ class YonderloftApplication(Adw.Application):
     def _setup_actions(self) -> None:
         self._add_action("quit", lambda *_: self.quit(), ["<primary>q"])
         self._add_action("about", self._on_about)
+        self._add_action("preferences", self._on_preferences, ["<primary>comma"])
         self._add_action("refresh", lambda *_: self.catalog.refresh(), ["<primary>r"])
 
     def _add_action(self, name, callback, accels=None) -> None:
@@ -72,6 +73,22 @@ class YonderloftApplication(Adw.Application):
         )
 
     # -- Actions ------------------------------------------------------------
+    def _on_preferences(self, *_args) -> None:
+        dialog = Adw.PreferencesDialog()
+        page = Adw.PreferencesPage(
+            title=_("General"), icon_name="preferences-system-symbolic")
+        group = Adw.PreferencesGroup(title=_("Browsing"))
+        row = Adw.SwitchRow(
+            title=_("Confirm external links"),
+            subtitle=_("Ask before opening links that leave a game's site in "
+                       "your browser."))
+        self.settings.bind("confirm-external-links", row, "active",
+                           Gio.SettingsBindFlags.DEFAULT)
+        group.add(row)
+        page.add(group)
+        dialog.add(page)
+        dialog.present(self._window)
+
     def _on_about(self, *_args) -> None:
         about = Adw.AboutDialog(
             application_name="Yonderloft",

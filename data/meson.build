@@ -45,7 +45,7 @@ endif
 # in a sandbox that has no SVG (rsvg) loader, so a full-colour scalable SVG is
 # rejected ("Format not recognized"); PNGs validate fine and Flathub accepts
 # them. Regenerate the PNGs from the SVG master with build-aux/render-icon.py.
-foreach size : ['128x128', '256x256']
+foreach size : ['48x48', '64x64', '128x128', '256x256']
   install_data(
     'icons' / size / '@0@.png'.format(app_id),
     install_dir: datadir / 'icons' / 'hicolor' / size / 'apps',

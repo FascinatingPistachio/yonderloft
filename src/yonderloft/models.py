@@ -66,6 +66,24 @@ class Category:
 
 
 @dataclass(frozen=True)
+class Tool:
+    """A per-title web tool (e.g. an account register page) opened in-app."""
+    name: str
+    url: str
+    icon: str = "applications-internet-symbolic"
+    hide_selectors: tuple[str, ...] = ()
+
+    @classmethod
+    def from_dict(cls, d: dict[str, Any]) -> "Tool":
+        return cls(
+            name=d["name"],
+            url=d["url"],
+            icon=d.get("icon", "applications-internet-symbolic"),
+            hide_selectors=tuple(d.get("hide_selectors", [])),
+        )
+
+
+@dataclass(frozen=True)
 class Title:
     id: str
     name: str
@@ -76,6 +94,8 @@ class Title:
     description: str = ""
     ruffle: dict[str, Any] = field(default_factory=dict)
     client: dict[str, Any] = field(default_factory=dict)
+    player_selector: str = ""
+    tools: tuple[Tool, ...] = ()
     tags: tuple[str, ...] = ()
     notes: str = ""
     homepage: str = ""
@@ -92,6 +112,8 @@ class Title:
             description=d.get("description", ""),
             ruffle=dict(d.get("ruffle", {})),
             client=dict(d.get("client", {})),
+            player_selector=d.get("player_selector", ""),
+            tools=tuple(Tool.from_dict(t) for t in d.get("tools", [])),
             tags=tuple(d.get("tags", [])),
             notes=d.get("notes", ""),
             homepage=d.get("homepage", ""),

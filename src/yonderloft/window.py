@@ -132,6 +132,7 @@ class YonderloftWindow(Adw.ApplicationWindow):
     def _build_menu_button(self) -> Gtk.MenuButton:
         menu = Gio.Menu()
         menu.append(_("Refresh catalog"), "app.refresh")
+        menu.append(_("Preferences"), "app.preferences")
         menu.append(_("About Yonderloft"), "app.about")
         menu.append(_("Quit"), "app.quit")
         button = Gtk.MenuButton(icon_name="open-menu-symbolic", menu_model=menu)

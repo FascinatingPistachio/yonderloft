@@ -83,6 +83,16 @@
         },
         "ruffle": { "$ref": "#/$defs/ruffleConfig" },
         "client": { "$ref": "#/$defs/clientConfig" },
+        "player_selector": {
+          "description": "CSS selector of the in-page game element to isolate to fill the window (web/ruffle titles).",
+          "type": "string",
+          "maxLength": 200
+        },
+        "tools": {
+          "description": "Extra per-title web tools (e.g. an account register page), opened inside Yonderloft.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/tool" }
+        },
         "tags": {
           "type": "array",
           "items": { "type": "string", "minLength": 1, "maxLength": 24 },
@@ -97,6 +107,20 @@
           "then": { "required": ["client"] }
         }
       ]
+    },
+    "tool": {
+      "type": "object",
+      "required": ["name", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 30 },
+        "url": { "$ref": "#/$defs/url" },
+        "icon": { "type": "string", "maxLength": 60 },
+        "hide_selectors": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
     },
     "ruffleConfig": {
       "type": "object",

@@ -34,6 +34,8 @@ class DetailPage(Adw.NavigationPage):
             desc = Gtk.Label(label=title.description, wrap=True, xalign=0)
             box.append(desc)
         box.append(self._build_server_picker())
+        if title.tools:
+            box.append(self._build_tools())
         box.append(self._build_disclosures())
 
         clamp.set_child(box)
@@ -129,6 +131,19 @@ class DetailPage(Adw.NavigationPage):
         combo.connect("notify::selected", self._on_server_selected)
         group.add(combo)
         return group
+
+    def _build_tools(self) -> Gtk.Widget:
+        group = Adw.PreferencesGroup(title=_("Tools"))
+        for tool in self._title.tools:
+            row = Adw.ActionRow(title=tool.name, activatable=True)
+            row.add_prefix(Gtk.Image.new_from_icon_name(tool.icon))
+            row.add_suffix(Gtk.Image.new_from_icon_name("go-next-symbolic"))
+            row.connect("activated", self._on_tool_activated, tool)
+            group.add(row)
+        return group
+
+    def _on_tool_activated(self, _row, tool) -> None:
+        self._app.router.launch_tool(self._title, tool)
 
     def _build_disclosures(self) -> Gtk.Widget:
         group = Adw.PreferencesGroup(title=_("Under the hood"))

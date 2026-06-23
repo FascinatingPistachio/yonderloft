@@ -2,60 +2,103 @@
   "schema_version": 1,
   "updated": "2026-06-23",
   "categories": [
-    { "id": "penguins", "name": "Penguins" },
-    { "id": "pets_monsters", "name": "Pets & Monsters" },
-    { "id": "experimental", "name": "Experimental" }
+    {
+      "id": "penguins",
+      "name": "Penguins"
+    },
+    {
+      "id": "experimental",
+      "name": "Experimental"
+    }
   ],
   "titles": [
     {
       "id": "new-club-penguin",
       "name": "New Club Penguin",
       "category": "penguins",
-      "description": "A faithful Club Penguin revival running the original AS3 client. Active community, regular parties and updates.",
+      "description": "A faithful Club Penguin revival running the original client. Active community, regular parties and updates.",
       "art": "https://newcp.net/_next/image/?url=%2Fhome%2Fcarousel-slide-0.png&w=3840&q=100",
-      "runtime": "flash",
+      "runtime": "web",
       "servers": [
-        { "name": "Main", "url": "https://newcp.net/play/", "status_url": "https://newcp.net/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://newcp.net/play/",
+          "status_url": "https://newcp.net/",
+          "default": true
+        }
       ],
-      "tags": ["flash", "as3"],
-      "notes": "AS3 — played through Ruffle, whose AS3 coverage is still improving. If it doesn't load, use Open in browser.",
+      "player_selector": "#D_F_GameSection",
+      "tools": [
+        {
+          "name": "Register",
+          "url": "https://newcp.net/register/",
+          "icon": "contact-new-symbolic",
+          "hide_selectors": [
+            "nav",
+            "#Navbar_navbar__2D84i",
+            ".navbar"
+          ]
+        }
+      ],
+      "tags": [
+        "flash",
+        "as3"
+      ],
       "homepage": "https://newcp.net/"
     },
     {
       "id": "waddle-forever",
       "name": "Waddle Forever",
-      "category": "penguins",
-      "description": "A strictly single-player Club Penguin archive that runs offline. There is no multiplayer and no joining servers — it ships its own bundled client and server for solo play.",
+      "category": "experimental",
+      "description": "A strictly single-player Club Penguin archive that runs offline. There is no multiplayer and no joining servers \u2014 it ships its own bundled client and server for solo play.",
       "art": "https://waddleforever.com/20172005.png",
       "runtime": "client",
       "servers": [
-        { "name": "Releases", "url": "https://github.com/nhaar/Waddle-Forever/releases", "status_url": "https://github.com/nhaar/Waddle-Forever/releases", "default": true }
+        {
+          "name": "Releases",
+          "url": "https://github.com/nhaar/Waddle-Forever/releases",
+          "status_url": "https://github.com/nhaar/Waddle-Forever/releases",
+          "default": true
+        }
       ],
       "client": {
         "kind": "appimage_or_flatpak",
         "source_url": "https://github.com/nhaar/Waddle-Forever/releases",
-        "install_hint": "Single-player only — no multiplayer or servers. Yonderloft fetches and runs its native Linux client."
+        "install_hint": "Single-player only \u2014 no multiplayer or servers. Yonderloft fetches and runs its native Linux client."
       },
-      "tags": ["singleplayer", "archive", "offline"],
+      "tags": [
+        "singleplayer",
+        "archive",
+        "offline"
+      ],
       "notes": "Strictly single-player: no multiplayer, no joining servers.",
       "homepage": "https://github.com/nhaar/Waddle-Forever"
     },
     {
       "id": "bin-weevils-rewritten",
       "name": "Bin Weevils Rewritten",
-      "category": "pets_monsters",
+      "category": "experimental",
       "description": "A revival of the Bin Weevils virtual world for tending your nest and exploring Binweevingdom. Ships its own native Linux client.",
       "art": "https://play.binweevils.app/assets/game/images/repeatBG.jpg",
       "runtime": "client",
       "servers": [
-        { "name": "Main", "url": "https://play.binweevils.app/download/", "status_url": "https://play.binweevils.app/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://play.binweevils.app/download/",
+          "status_url": "https://play.binweevils.app/",
+          "default": true
+        }
       ],
       "client": {
         "kind": "tarball",
         "source_url": "https://github.com/BWRewritten/Bin-Weevils-Rewritten-Client/releases",
         "install_hint": "Native Linux client (Electron). Yonderloft fetches the latest release, unpacks it, and launches it."
       },
-      "tags": ["client", "native", "electron"],
+      "tags": [
+        "client",
+        "native",
+        "electron"
+      ],
       "homepage": "https://play.binweevils.app/"
     },
     {
@@ -66,9 +109,17 @@
       "art": "art/club-penguin-journey.png",
       "runtime": "flash",
       "servers": [
-        { "name": "Main", "url": "https://cpjourney.net/", "status_url": "https://cpjourney.net/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://cpjourney.net/",
+          "status_url": "https://cpjourney.net/",
+          "default": true
+        }
       ],
-      "tags": ["flash", "as3"],
+      "tags": [
+        "flash",
+        "as3"
+      ],
       "homepage": "https://cpjourney.net/"
     },
     {
@@ -79,9 +130,17 @@
       "art": "art/cpzero.png",
       "runtime": "flash",
       "servers": [
-        { "name": "Main", "url": "https://cpzero.net/", "status_url": "https://cpzero.net/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://cpzero.net/",
+          "status_url": "https://cpzero.net/",
+          "default": true
+        }
       ],
-      "tags": ["flash", "as3"],
+      "tags": [
+        "flash",
+        "as3"
+      ],
       "notes": "Verify live server URL before launch."
     },
     {
@@ -92,10 +151,22 @@
       "art": "art/moshi-monsters-rewritten.png",
       "runtime": "ruffle",
       "servers": [
-        { "name": "Main", "url": "https://www.moshimonstersrewritten.com/", "status_url": "https://www.moshimonstersrewritten.com/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://www.moshimonstersrewritten.com/",
+          "status_url": "https://www.moshimonstersrewritten.com/",
+          "default": true
+        }
       ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash", "as2"],
+      "ruffle": {
+        "swf_url": null,
+        "flashvars": {},
+        "force_scale": "showAll"
+      },
+      "tags": [
+        "flash",
+        "as2"
+      ],
       "notes": "No membership paywall, unlike the original.",
       "homepage": "https://www.moshimonstersrewritten.com/"
     },
@@ -107,9 +178,16 @@
       "art": "art/we-the-pixies.png",
       "runtime": "flash",
       "servers": [
-        { "name": "Main", "url": "https://wethepixies.net/", "status_url": "https://wethepixies.net/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://wethepixies.net/",
+          "status_url": "https://wethepixies.net/",
+          "default": true
+        }
       ],
-      "tags": ["flash"],
+      "tags": [
+        "flash"
+      ],
       "notes": "Verify AS2/AS3 and live URL before launch."
     },
     {
@@ -120,10 +198,22 @@
       "art": "art/fairyabc.png",
       "runtime": "ruffle",
       "servers": [
-        { "name": "Main", "url": "https://www.fairyabc.com/", "status_url": "https://www.fairyabc.com/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://www.fairyabc.com/",
+          "status_url": "https://www.fairyabc.com/",
+          "default": true
+        }
       ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash", "as2"]
+      "ruffle": {
+        "swf_url": null,
+        "flashvars": {},
+        "force_scale": "showAll"
+      },
+      "tags": [
+        "flash",
+        "as2"
+      ]
     },
     {
       "id": "myvmk",
@@ -133,14 +223,21 @@
       "art": "art/myvmk.png",
       "runtime": "client",
       "servers": [
-        { "name": "Main", "url": "https://myvmk.com/", "status_url": "https://myvmk.com/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://myvmk.com/",
+          "status_url": "https://myvmk.com/",
+          "default": true
+        }
       ],
       "client": {
         "kind": "tarball",
         "source_url": "https://myvmk.com/",
         "install_hint": "MyVMK ships its own desktop client; Yonderloft wraps it."
       },
-      "tags": ["client"],
+      "tags": [
+        "client"
+      ],
       "homepage": "https://myvmk.com/"
     },
     {
@@ -151,14 +248,22 @@
       "art": "art/toontown-rewritten.png",
       "runtime": "client",
       "servers": [
-        { "name": "Main", "url": "https://www.toontownrewritten.com/", "status_url": "https://www.toontownrewritten.com/api/status", "default": true }
+        {
+          "name": "Main",
+          "url": "https://www.toontownrewritten.com/",
+          "status_url": "https://www.toontownrewritten.com/api/status",
+          "default": true
+        }
       ],
       "client": {
         "kind": "tarball",
         "source_url": "https://www.toontownrewritten.com/play",
         "install_hint": "Native client; Yonderloft fetches and wraps the Linux launcher."
       },
-      "tags": ["client", "native"],
+      "tags": [
+        "client",
+        "native"
+      ],
       "homepage": "https://www.toontownrewritten.com/"
     },
     {
@@ -169,14 +274,22 @@
       "art": "art/openfusion.png",
       "runtime": "client",
       "servers": [
-        { "name": "OpenFusion", "url": "https://github.com/OpenFusionProject/OpenFusion", "status_url": "https://github.com/OpenFusionProject/OpenFusion", "default": true }
+        {
+          "name": "OpenFusion",
+          "url": "https://github.com/OpenFusionProject/OpenFusion",
+          "status_url": "https://github.com/OpenFusionProject/OpenFusion",
+          "default": true
+        }
       ],
       "client": {
         "kind": "appimage_or_flatpak",
         "source_url": "https://github.com/OpenFusionProject/OpenFusion/releases",
         "install_hint": "Custom launcher fetches the original Unity client."
       },
-      "tags": ["client", "unity"],
+      "tags": [
+        "client",
+        "unity"
+      ],
       "homepage": "https://openfusionproject.github.io/"
     },
     {
@@ -187,10 +300,22 @@
       "art": "art/panfu.png",
       "runtime": "ruffle",
       "servers": [
-        { "name": "Main", "url": "https://panfu.us/", "status_url": "https://panfu.us/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://panfu.us/",
+          "status_url": "https://panfu.us/",
+          "default": true
+        }
       ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash", "as2"],
+      "ruffle": {
+        "swf_url": null,
+        "flashvars": {},
+        "force_scale": "showAll"
+      },
+      "tags": [
+        "flash",
+        "as2"
+      ],
       "homepage": "https://panfu.us/"
     },
     {
@@ -201,10 +326,21 @@
       "art": "art/nicktropolis-timewarp.png",
       "runtime": "ruffle",
       "servers": [
-        { "name": "Main", "url": "https://nicktropolis.net/", "status_url": "https://nicktropolis.net/", "default": true }
+        {
+          "name": "Main",
+          "url": "https://nicktropolis.net/",
+          "status_url": "https://nicktropolis.net/",
+          "default": true
+        }
       ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash"],
+      "ruffle": {
+        "swf_url": null,
+        "flashvars": {},
+        "force_scale": "showAll"
+      },
+      "tags": [
+        "flash"
+      ],
       "notes": "Verify live URL before launch."
     }
   ]
