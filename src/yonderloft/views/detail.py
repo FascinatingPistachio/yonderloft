@@ -9,7 +9,6 @@ from __future__ import annotations
 from gi.repository import Adw, Gio, Gtk, Pango
 
 from ..models import Server, Status, Title
-from ..runtimes import RuntimeNotReady
 from .widgets import StatusDot, runtime_label
 
 _ = __import__("gettext").gettext
@@ -219,10 +218,7 @@ class DetailPage(Adw.NavigationPage):
             self._show_offline()
             return
         self._remember_recent()
-        try:
-            self._app.router.launch(self._title, self._server)
-        except RuntimeNotReady as exc:
-            self._show_not_ready(exc)
+        self._app.router.launch(self._title, self._server)
 
     def _show_offline(self) -> None:
         dialog = Adw.AlertDialog(
@@ -240,16 +236,3 @@ class DetailPage(Adw.NavigationPage):
             recent.remove(self._title.id)
         recent.insert(0, self._title.id)
         settings.set_strv("recent", recent[:24])
-
-    def _show_not_ready(self, exc: RuntimeNotReady) -> None:
-        dialog = Adw.AlertDialog(heading=_("Not ready yet"), body=str(exc))
-        dialog.add_response("ok", _("OK"))
-        if exc.homepage:
-            dialog.add_response("open", _("Open homepage"))
-            dialog.set_response_appearance("open", Adw.ResponseAppearance.SUGGESTED)
-            dialog.connect("response", self._on_not_ready_response, exc.homepage)
-        dialog.present(self)
-
-    def _on_not_ready_response(self, _dialog, response, homepage) -> None:
-        if response == "open":
-            Gtk.UriLauncher.new(homepage).launch(self.get_root(), None, None)

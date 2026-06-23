@@ -57,10 +57,45 @@ class GamePage(Adw.NavigationPage):
         toolbar.add_top_bar(header)
         view.set_hexpand(True)
         view.set_vexpand(True)
-        toolbar.set_content(view)
+
+        # Loading / error overlay over the web view.
+        overlay = Gtk.Overlay()
+        overlay.set_child(view)
+        self._status = Adw.StatusPage(
+            title=_("Loading…"), icon_name="content-loading-symbolic")
+        self._spinner = Gtk.Spinner()
+        self._spinner.set_size_request(32, 32)
+        self._status.set_child(self._spinner)
+        self._status_revealer = Gtk.Revealer(
+            transition_type=Gtk.RevealerTransitionType.CROSSFADE,
+            reveal_child=True, can_target=False)
+        self._status_revealer.add_css_class("cover-ph")
+        self._status_revealer.set_child(self._status)
+        overlay.add_overlay(self._status_revealer)
+        self._spinner.start()
+
+        toolbar.set_content(overlay)
         self.set_child(toolbar)
 
         view.connect("decide-policy", self._on_decide_policy)
+        view.connect("load-changed", self._on_load_changed)
+        view.connect("load-failed", self._on_load_failed)
+
+    # -- Loading / error state ---------------------------------------------
+    def _on_load_changed(self, _view, event) -> None:
+        if event == WebKit.LoadEvent.FINISHED:
+            self._spinner.stop()
+            self._status_revealer.set_reveal_child(False)
+
+    def _on_load_failed(self, _view, _event, _uri, _error) -> bool:
+        self._spinner.stop()
+        self._status.set_icon_name("network-error-symbolic")
+        self._status.set_title(_("Couldn't load this game"))
+        self._status.set_description(
+            _("It may be offline. Try again, or use “Open in browser”."))
+        self._status.set_child(None)
+        self._status_revealer.set_reveal_child(True)
+        return False
 
     # -- Navigation policy --------------------------------------------------
     @staticmethod

@@ -1,4 +1,4 @@
 """Runtime backends: per-title launch strategies keyed off ``Title.runtime``."""
-from .router import RuntimeRouter, RuntimeNotReady
+from .router import RuntimeRouter
 
-__all__ = ["RuntimeRouter", "RuntimeNotReady"]
+__all__ = ["RuntimeRouter"]

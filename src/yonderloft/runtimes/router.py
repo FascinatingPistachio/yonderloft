@@ -1,23 +1,19 @@
 """The runtime router — the core launch logic.
 
 Reads ``Title.runtime`` and launches the title the right way: embedded runtimes
-open a sandboxed game window hosting a WebView bound to the title's isolated
-profile; external runtimes hand off to the title's own client.
-
-Raises :class:`RuntimeNotReady` with a user-facing message when a title can't be
-launched (e.g. the ``flash``/``client`` paths still on the roadmap).
+push a game page hosting a WebView bound to the title's isolated profile;
+external runtimes hand off to the title's own client.
 """
 from __future__ import annotations
 
 from ..models import Runtime, Server, Title
 from .base import Runtime as RuntimeBackend
-from .base import RuntimeNotReady
 from .client import ClientRuntime
 from .flash import FlashRuntime
 from .ruffle import RuffleRuntime
 from .web import WebRuntime
 
-__all__ = ["RuntimeRouter", "RuntimeNotReady"]
+__all__ = ["RuntimeRouter"]
 
 
 class RuntimeRouter:
@@ -34,7 +30,7 @@ class RuntimeRouter:
         return self._backends[title.runtime]
 
     def launch(self, title: Title, server: Server) -> None:
-        """Launch a title on a chosen server. May raise RuntimeNotReady."""
+        """Launch a title on a chosen server."""
         backend = self.backend_for(title)
 
         if not backend.embeds:

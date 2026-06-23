@@ -105,29 +105,11 @@ class RuffleRuntime(Runtime):
                 None, None,
             )
         )
+        # If the title names its game element, isolate it the same way the web
+        # runtime does (also hides late overlays like cookie/consent banners).
+        if title.player_selector:
+            from .web import _isolation_script
+            ucm.add_script(_isolation_script(title.player_selector))
 
-        swf_url = ruffle_cfg.get("swf_url")
-        if swf_url:
-            view.load_html(self._direct_host_page(swf_url, ruffle_cfg), server.url)
-        else:
-            view.load_uri(server.url)
+        view.load_uri(server.url)
         return view
-
-    @staticmethod
-    def _direct_host_page(swf_url: str, ruffle_cfg: dict) -> str:
-        params = json.dumps({"url": swf_url, **ruffle_cfg.get("flashvars", {})})
-        return f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8">
-<style>html,body{{margin:0;height:100%;background:#241F31;overflow:hidden}}
-#stage{{position:fixed;inset:0}}</style>
-<script src="{RUFFLE_SRC}"></script></head>
-<body><div id="stage"></div>
-<script>
-window.addEventListener('load', function () {{
-  var ruffle = window.RufflePlayer.newest();
-  var player = ruffle.createPlayer();
-  document.getElementById('stage').appendChild(player);
-  player.style.width = '100%'; player.style.height = '100%';
-  player.load({params});
-}});
-</script></body></html>"""

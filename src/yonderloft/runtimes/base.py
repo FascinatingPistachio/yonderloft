@@ -11,18 +11,7 @@ Runtimes never reach into UI chrome; they return a widget or perform a launch.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from ..models import Server, Title
-
-
-class RuntimeNotReady(Exception):
-    """Raised when a runtime can't launch a title yet (e.g. not implemented,
-    missing dependency). The message is shown to the user verbatim."""
-
-    def __init__(self, message: str, *, homepage: Optional[str] = None) -> None:
-        super().__init__(message)
-        self.homepage = homepage
 
 
 class Runtime:
