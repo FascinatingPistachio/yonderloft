@@ -41,22 +41,22 @@ if compile_schemas.found()
 endif
 
 # --- Icons --------------------------------------------------------------------
-install_data(
-  'icons/@0@.svg'.format(app_id),
-  install_dir: datadir / 'icons' / 'hicolor' / 'scalable' / 'apps',
-)
-install_data(
-  'icons/symbolic/@0@-symbolic.svg'.format(app_id),
-  install_dir: datadir / 'icons' / 'hicolor' / 'symbolic' / 'apps',
-)
-# Raster icons: appstreamcli compose (run by flatpak-builder) needs a readable
-# PNG, and Flathub requires one. Regenerate with build-aux/render-icon.py.
+# App icon ships as PNG only. flatpak build-export validates exported app icons
+# in a sandbox that has no SVG (rsvg) loader, so a full-colour scalable SVG is
+# rejected ("Format not recognized"); PNGs validate fine and Flathub accepts
+# them. Regenerate the PNGs from the SVG master with build-aux/render-icon.py.
 foreach size : ['128x128', '256x256']
   install_data(
     'icons' / size / '@0@.png'.format(app_id),
     install_dir: datadir / 'icons' / 'hicolor' / size / 'apps',
   )
 endforeach
+
+# Symbolic icon (monochrome SVG) is validated differently and is fine.
+install_data(
+  'icons/symbolic/@0@-symbolic.svg'.format(app_id),
+  install_dir: datadir / 'icons' / 'hicolor' / 'symbolic' / 'apps',
+)
 
 # --- Bundled catalog (offline fallback / first-run seed) ----------------------
 install_data(
