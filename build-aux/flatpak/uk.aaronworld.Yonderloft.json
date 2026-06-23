@@ -10,8 +10,10 @@
     "--device=dri",
     "--socket=pulseaudio",
     "--share=ipc",
-    "--share=network"
+    "--share=network",
+    "--talk-name=org.freedesktop.Flatpak"
   ],
+  "x-finish-args-note": "talk-name=org.freedesktop.Flatpak lets the 'client' runtime run downloaded native game clients on the host via flatpak-spawn --host. Electron/Chromium clients can't run nested inside this sandbox (they crash). This is a deliberate sandbox relaxation used only to launch those external clients.",
   "cleanup": [
     "/include",
     "/lib/pkgconfig",

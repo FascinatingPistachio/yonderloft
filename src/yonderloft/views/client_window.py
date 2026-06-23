@@ -5,9 +5,11 @@ Some revivals ship their own native Linux client instead of running in a browser
 tarball). These are native Linux apps, so no translation layer is needed. This
 window fetches the latest GitHub release, downloads the best runnable asset
 (AppImage or tarball) if it's missing or out of date, unpacks it, and launches
-it. AppImages run with ``--appimage-extract-and-run`` (FUSE-free, sandbox-safe);
-Electron clients are launched with ``--no-sandbox`` since the Flatpak sandbox
-already confines them and ``chrome-sandbox`` can't be setuid here.
+it. AppImages run with ``--appimage-extract-and-run`` (FUSE-free); Electron
+clients are launched with ``--no-sandbox`` (their own ``chrome-sandbox`` can't be
+setuid here). Crucially, when we're inside the Flatpak sandbox the client is run
+**on the host** via ``flatpak-spawn --host`` — Chromium/Electron apps crash if
+run nested inside our GNOME-runtime sandbox.
 
 Networking and the (large) download/extract run on a worker thread; all UI
 updates are marshalled back to the main loop.
@@ -190,8 +192,17 @@ class ClientInstallWindow(Adw.Window):
             argv = [target, "--appimage-extract-and-run", "--no-sandbox"]
         else:
             argv = [target, "--no-sandbox"]
+        cwd = os.path.dirname(target)
+
+        # Electron/Chromium clients can't run nested inside our Flatpak sandbox
+        # (wrong libc/namespaces — they segfault). Run them on the host instead,
+        # via the Flatpak spawn portal. Outside Flatpak, run directly.
+        if os.path.exists("/.flatpak-info"):
+            argv = ["flatpak-spawn", "--host", f"--directory={cwd}"] + argv
+            cwd = None
+
         try:
-            subprocess.Popen(argv, cwd=os.path.dirname(target),
+            subprocess.Popen(argv, cwd=cwd,
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except OSError as exc:
             self._error(_("Couldn't start the client: %s") % exc)
