@@ -1,4 +1,6 @@
 name: Build and Release
+permissions:
+  contents: write
 
 on:
   push:
@@ -53,7 +55,8 @@ PY
 $latest)
           fi
           echo "release_tag=$tag" >> "$GITHUB_OUTPUT"
-          if curl -fsSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$tag" >/dev/null 2>&1; then
+          status=$(curl -sSL -o /dev/null -w '%{http_code}' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$tag")
+          if [ "$status" = "200" ]; then
             echo "release_exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "release_exists=false" >> "$GITHUB_OUTPUT"
