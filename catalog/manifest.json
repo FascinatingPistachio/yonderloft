@@ -1,12 +1,10 @@
 {
   "schema_version": 1,
-  "updated": "2026-06-22",
+  "updated": "2026-06-23",
   "categories": [
     { "id": "penguins", "name": "Penguins" },
     { "id": "pets_monsters", "name": "Pets & Monsters" },
-    { "id": "fairy", "name": "Fairy worlds" },
-    { "id": "disney", "name": "Disney" },
-    { "id": "other", "name": "Other" }
+    { "id": "experimental", "name": "Experimental" }
   ],
   "titles": [
     {
@@ -14,7 +12,7 @@
       "name": "New Club Penguin",
       "category": "penguins",
       "description": "A faithful Club Penguin revival running the original AS3 client. Active community, regular parties and updates.",
-      "art": "art/new-club-penguin.png",
+      "art": "https://newcp.net/_next/image/?url=%2Fhome%2Fcarousel-slide-0.png&w=3840&q=100",
       "runtime": "flash",
       "servers": [
         { "name": "Main", "url": "https://newcp.net/play/", "status_url": "https://newcp.net/", "default": true }
@@ -24,37 +22,11 @@
       "homepage": "https://newcp.net/"
     },
     {
-      "id": "club-penguin-journey",
-      "name": "Club Penguin Journey",
-      "category": "penguins",
-      "description": "A Club Penguin recreation aiming to rebuild the original experience era by era.",
-      "art": "art/club-penguin-journey.png",
-      "runtime": "flash",
-      "servers": [
-        { "name": "Main", "url": "https://cpjourney.net/", "status_url": "https://cpjourney.net/", "default": true }
-      ],
-      "tags": ["flash", "as3"],
-      "homepage": "https://cpjourney.net/"
-    },
-    {
-      "id": "cpzero",
-      "name": "CPZero",
-      "category": "penguins",
-      "description": "A Club Penguin private server focused on the classic island.",
-      "art": "art/cpzero.png",
-      "runtime": "flash",
-      "servers": [
-        { "name": "Main", "url": "https://cpzero.net/", "status_url": "https://cpzero.net/", "default": true }
-      ],
-      "tags": ["flash", "as3"],
-      "notes": "Verify live server URL before launch."
-    },
-    {
       "id": "waddle-forever",
       "name": "Waddle Forever",
       "category": "penguins",
-      "description": "A single-player Club Penguin archive that ships its own client and runs offline.",
-      "art": "art/waddle-forever.png",
+      "description": "A strictly single-player Club Penguin archive that runs offline. There is no multiplayer and no joining servers — it ships its own bundled client and server for solo play.",
+      "art": "https://waddleforever.com/20172005.png",
       "runtime": "client",
       "servers": [
         { "name": "Releases", "url": "https://github.com/nhaar/Waddle-Forever/releases", "status_url": "https://github.com/nhaar/Waddle-Forever/releases", "default": true }
@@ -62,32 +34,18 @@
       "client": {
         "kind": "appimage_or_flatpak",
         "source_url": "https://github.com/nhaar/Waddle-Forever/releases",
-        "install_hint": "Single-player CP archive; Yonderloft fetches and wraps its own client."
+        "install_hint": "Single-player only — no multiplayer or servers. Yonderloft fetches and runs its native Linux client."
       },
-      "tags": ["singleplayer", "archive"],
+      "tags": ["singleplayer", "archive", "offline"],
+      "notes": "Strictly single-player: no multiplayer, no joining servers.",
       "homepage": "https://github.com/nhaar/Waddle-Forever"
-    },
-    {
-      "id": "moshi-monsters-rewritten",
-      "name": "Moshi Monsters Rewritten",
-      "category": "pets_monsters",
-      "description": "A community recreation of the 2008 monster-adoption game. No membership paywall, unlike the original.",
-      "art": "art/moshi-monsters-rewritten.png",
-      "runtime": "ruffle",
-      "servers": [
-        { "name": "Main", "url": "https://www.moshimonstersrewritten.com/", "status_url": "https://www.moshimonstersrewritten.com/", "default": true }
-      ],
-      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
-      "tags": ["flash", "as2"],
-      "notes": "No membership paywall, unlike the original.",
-      "homepage": "https://www.moshimonstersrewritten.com/"
     },
     {
       "id": "bin-weevils-rewritten",
       "name": "Bin Weevils Rewritten",
       "category": "pets_monsters",
       "description": "A revival of the Bin Weevils virtual world for tending your nest and exploring Binweevingdom. Ships its own native Linux client.",
-      "art": "art/bin-weevils-rewritten.png",
+      "art": "https://play.binweevils.app/assets/game/images/repeatBG.jpg",
       "runtime": "client",
       "servers": [
         { "name": "Main", "url": "https://play.binweevils.app/download/", "status_url": "https://play.binweevils.app/", "default": true }
@@ -101,9 +59,50 @@
       "homepage": "https://play.binweevils.app/"
     },
     {
+      "id": "club-penguin-journey",
+      "name": "Club Penguin Journey",
+      "category": "experimental",
+      "description": "A Club Penguin recreation aiming to rebuild the original experience era by era.",
+      "art": "art/club-penguin-journey.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://cpjourney.net/", "status_url": "https://cpjourney.net/", "default": true }
+      ],
+      "tags": ["flash", "as3"],
+      "homepage": "https://cpjourney.net/"
+    },
+    {
+      "id": "cpzero",
+      "name": "CPZero",
+      "category": "experimental",
+      "description": "A Club Penguin private server focused on the classic island.",
+      "art": "art/cpzero.png",
+      "runtime": "flash",
+      "servers": [
+        { "name": "Main", "url": "https://cpzero.net/", "status_url": "https://cpzero.net/", "default": true }
+      ],
+      "tags": ["flash", "as3"],
+      "notes": "Verify live server URL before launch."
+    },
+    {
+      "id": "moshi-monsters-rewritten",
+      "name": "Moshi Monsters Rewritten",
+      "category": "experimental",
+      "description": "A community recreation of the 2008 monster-adoption game. No membership paywall, unlike the original.",
+      "art": "art/moshi-monsters-rewritten.png",
+      "runtime": "ruffle",
+      "servers": [
+        { "name": "Main", "url": "https://www.moshimonstersrewritten.com/", "status_url": "https://www.moshimonstersrewritten.com/", "default": true }
+      ],
+      "ruffle": { "swf_url": null, "flashvars": {}, "force_scale": "showAll" },
+      "tags": ["flash", "as2"],
+      "notes": "No membership paywall, unlike the original.",
+      "homepage": "https://www.moshimonstersrewritten.com/"
+    },
+    {
       "id": "we-the-pixies",
       "name": "We The Pixies",
-      "category": "fairy",
+      "category": "experimental",
       "description": "A Pixie Hollow revival recreating the Disney Fairies world.",
       "art": "art/we-the-pixies.png",
       "runtime": "flash",
@@ -116,7 +115,7 @@
     {
       "id": "fairyabc",
       "name": "Fairyabc",
-      "category": "fairy",
+      "category": "experimental",
       "description": "A browser-based Pixie Hollow revival.",
       "art": "art/fairyabc.png",
       "runtime": "ruffle",
@@ -129,7 +128,7 @@
     {
       "id": "myvmk",
       "name": "MyVMK",
-      "category": "disney",
+      "category": "experimental",
       "description": "A revival of Disney's Virtual Magic Kingdom, with its own downloadable client.",
       "art": "art/myvmk.png",
       "runtime": "client",
@@ -147,7 +146,7 @@
     {
       "id": "toontown-rewritten",
       "name": "Toontown Rewritten",
-      "category": "disney",
+      "category": "experimental",
       "description": "The long-running revival of Disney's Toontown Online, with its own native launcher and client.",
       "art": "art/toontown-rewritten.png",
       "runtime": "client",
@@ -165,7 +164,7 @@
     {
       "id": "openfusion",
       "name": "OpenFusion",
-      "category": "other",
+      "category": "experimental",
       "description": "An open-source revival of FusionFall, Cartoon Network's MMO, using a custom launcher and client.",
       "art": "art/openfusion.png",
       "runtime": "client",
@@ -183,7 +182,7 @@
     {
       "id": "panfu",
       "name": "Panfu",
-      "category": "other",
+      "category": "experimental",
       "description": "A revival of the panda virtual world Panfu.",
       "art": "art/panfu.png",
       "runtime": "ruffle",
@@ -197,7 +196,7 @@
     {
       "id": "nicktropolis-timewarp",
       "name": "Nicktropolis Timewarp",
-      "category": "other",
+      "category": "experimental",
       "description": "A revival of Nickelodeon's Nicktropolis virtual world.",
       "art": "art/nicktropolis-timewarp.png",
       "runtime": "ruffle",

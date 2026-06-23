@@ -1,51 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Yonderloft — app icon. A glowing attic dormer window, lit from within at dusk.
+  Yonderloft — app icon. A warm, arched ATTIC window lit from within at dusk.
+  The arched top reads as an old loft/dormer window (not a plain window, not a
+  house), tying to "the attic where the old web lives on".
 
-  Drawn to the GNOME HIG app-icon template (128px, flat colour on straight
-  surfaces, gradients only on the curved/lit glass, a darker front lip on the
-  sill for Adwaita depth, no external drop shadow). Reads cleanly on Adwaita and
-  Breeze (KDE), and satisfies Flathub's icon rules. PNG renditions are produced
-  from this master with build-aux/render-icon.py.
+  GNOME HIG app-icon template (128px, flat colour on straight surfaces, the
+  amber gradient only on the curved/lit glass, a darker front lip on the sill
+  for Adwaita depth, no external drop shadow). PNG renditions come from this
+  master via build-aux/render-icon.py.
 -->
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="frame" x1="64" y1="12" x2="64" y2="104" gradientUnits="userSpaceOnUse">
+    <linearGradient id="frame" x1="64" y1="20" x2="64" y2="104" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#3A3252"/>
       <stop offset="1" stop-color="#201B2D"/>
     </linearGradient>
-    <linearGradient id="sill" x1="64" y1="94" x2="64" y2="110" gradientUnits="userSpaceOnUse">
+    <linearGradient id="sill" x1="64" y1="96" x2="64" y2="112" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#4E4666"/>
       <stop offset="1" stop-color="#2B2641"/>
     </linearGradient>
-    <!-- Warm loft light. Gradient lives only on this curved/lit surface. -->
-    <radialGradient id="glass" cx="60" cy="42" r="58" gradientUnits="userSpaceOnUse">
+    <!-- Warm loft light: gradient lives only on the lit glass. -->
+    <radialGradient id="glass" cx="58" cy="52" r="50" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#FFF1C4"/>
-      <stop offset="0.42" stop-color="#FBC638"/>
+      <stop offset="0.45" stop-color="#FBC638"/>
       <stop offset="1" stop-color="#E5A50A"/>
-    </radialGradient>
-    <!-- Soft light bloom over the upper-left pane, no hard edge. -->
-    <radialGradient id="bloom" cx="55" cy="42" r="26" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFFBEC" stop-opacity="0.85"/>
-      <stop offset="1" stop-color="#FFFBEC" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <!-- Rim-light: a slightly lighter plate peeking 2px above the frame. -->
-  <rect x="23" y="12" width="82" height="92" rx="19" fill="#453C63"/>
+  <!-- Window frame: straight sides, arched top. -->
+  <path d="M30 100 V56 a34 34 0 0 1 68 0 V100 Z" fill="url(#frame)"/>
 
-  <!-- Dusk window frame. -->
-  <rect x="23" y="14" width="82" height="90" rx="18" fill="url(#frame)"/>
+  <!-- Lit glass, inset within the frame. -->
+  <path d="M40 98 V56 a24 24 0 0 1 48 0 V98 Z" fill="url(#glass)"/>
 
-  <!-- Lit glass, with a soft warm bloom on top. -->
-  <rect x="33" y="25" width="62" height="66" rx="9" fill="url(#glass)"/>
-  <rect x="33" y="25" width="62" height="66" rx="9" fill="url(#bloom)"/>
-
-  <!-- Muntins (window bars), in the dusk colour. -->
-  <rect x="60.5" y="25" width="7" height="66" fill="#231E33"/>
-  <rect x="33" y="54.5" width="62" height="7" fill="#231E33"/>
+  <!-- Muntins (window bars): a cross over the arched glass. -->
+  <rect x="61" y="33" width="6" height="65" fill="#231E33"/>
+  <rect x="40" y="74" width="48" height="6" fill="#231E33"/>
 
   <!-- Sill with a darker front lip for Adwaita depth. -->
-  <rect x="18" y="93" width="92" height="14" rx="4" fill="url(#sill)"/>
-  <rect x="18" y="100" width="92" height="7" rx="3" fill="#181420"/>
+  <rect x="24" y="97" width="80" height="13" rx="4" fill="url(#sill)"/>
+  <rect x="24" y="104" width="80" height="6" rx="3" fill="#181420"/>
 </svg>

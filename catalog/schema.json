@@ -67,9 +67,9 @@
         "category": { "$ref": "#/$defs/slug" },
         "description": { "type": "string", "maxLength": 1000 },
         "art": {
-          "description": "Cover art path relative to the catalog root.",
+          "description": "Cover/banner art: a path relative to the catalog root, or a full http(s) URL.",
           "type": "string",
-          "pattern": "^art/[A-Za-z0-9._-]+\\.(png|jpg|jpeg|webp|svg)$"
+          "pattern": "^(art/[A-Za-z0-9._-]+\\.(png|jpg|jpeg|webp|svg)|https?://.+)$"
         },
         "runtime": {
           "description": "Routing key — decides how the title is launched.",

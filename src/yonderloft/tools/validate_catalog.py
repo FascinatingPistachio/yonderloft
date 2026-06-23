@@ -79,7 +79,8 @@ def validate(manifest_path: str) -> tuple[list[str], list[str]]:
             errors.append(f"{tid}: more than one default server")
 
         art = title.get("art")
-        if art and not os.path.exists(os.path.join(catalog_root, art)):
+        if (art and not art.startswith(("http://", "https://"))
+                and not os.path.exists(os.path.join(catalog_root, art))):
             warnings.append(f"{tid}: art file not found (will use placeholder): {art}")
 
     return errors, warnings
