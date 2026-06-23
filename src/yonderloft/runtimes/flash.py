@@ -1,30 +1,22 @@
-"""``flash`` runtime: sandboxed legacy Pepper Flash for AS3 titles Ruffle can't
-render yet.
+"""``flash`` runtime: AS3 titles, played through Ruffle.
 
-This is the "use at your own risk" path from README §6. It is **not** part of
-the v0.1 MVP — it lands in v0.2, where it runs confined inside the Flatpak
-sandbox with the title's isolated profile and network scoped to its declared
-domains. Until then it reports cleanly and points the user at the homepage.
+Per the project's decision, there is no bundled Adobe Flash — it's EOL and
+proprietary, can't be shipped (Flathub bans it), and WebKitGTK can't host PPAPI
+plugins anyway. Ruffle is the only Flash that ships: it's embedded and sandboxed
+(Rust/WASM). The ``flash`` runtime therefore *is* Ruffle, kept as a separate
+runtime only so the UI can be honest that AS3 coverage is still incomplete and
+offer the browser as a fallback when a title doesn't render.
 """
 from __future__ import annotations
 
-from ..models import Server, Title
-from .base import Runtime, RuntimeNotReady
+from .ruffle import RuffleRuntime
 
 
-class FlashRuntime(Runtime):
+class FlashRuntime(RuffleRuntime):
     name = "flash"
     embeds = True
-    legacy = True
+    legacy = False
     security_note = (
-        "Legacy Flash runtime — unmaintained and unpatched. Runs sandboxed with "
-        "an isolated profile, but don't reuse passwords here."
+        "Played through Ruffle (open-source, sandboxed). AS3 coverage is still "
+        "improving — if this title doesn't load, use “Open in browser”."
     )
-
-    def build_view(self, title: Title, server: Server, network_session):
-        raise RuntimeNotReady(
-            "Sandboxed Flash isn't available yet — it's coming in v0.2 for the "
-            "AS3 titles Ruffle can't render. For now, open this game in your "
-            "browser instead.",
-            homepage=title.homepage or server.url,
-        )

@@ -24,7 +24,7 @@ class YonderloftWindow(Adw.ApplicationWindow):
         self.set_size_request(360, 480)
         self._bind_window_state()
 
-        self._grid = GameGrid(application.status)
+        self._grid = GameGrid(application.status, application.art)
         self._grid.connect("title-activated", self._on_title_activated)
 
         self._content_nav = Adw.NavigationView()

@@ -6,6 +6,7 @@ import os
 from gi.repository import Adw, Gdk, Gio, Gtk
 
 from . import config
+from .art_service import ArtService
 from .catalog import CatalogService
 from .profiles import ProfileManager
 from .runtimes import RuntimeRouter
@@ -25,6 +26,7 @@ class YonderloftApplication(Adw.Application):
         self.profiles = ProfileManager()
         self.status = StatusPinger()
         self.catalog = CatalogService(self.settings.get_string("catalog-url"))
+        self.art = ArtService(self.settings.get_string("catalog-url"))
         self.router = RuntimeRouter(self)
 
         self._window: YonderloftWindow | None = None

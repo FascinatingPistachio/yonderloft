@@ -21,6 +21,8 @@ GI_FREE_MODULES = [
     "yonderloft.models",
     "yonderloft.catalog_io",
     "yonderloft.profiles",
+    "yonderloft.art",
+    "yonderloft.client_installer",
     "yonderloft.tools.validate_catalog",
 ]
 

@@ -16,7 +16,7 @@ _ = __import__("gettext").gettext
 class GameCard(Gtk.Button):
     """A single game card. A flat button so the whole card is one click target."""
 
-    def __init__(self, title: Title, category_name: str) -> None:
+    def __init__(self, title: Title, category_name: str, art_service=None) -> None:
         super().__init__()
         self.title = title
         self.add_css_class("game-card")
@@ -25,16 +25,20 @@ class GameCard(Gtk.Button):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.set_size_request(190, -1)
 
-        # Cover — placeholder lit-window glow until art loads.
-        cover = Gtk.Box()
-        cover.add_css_class("cover")
-        cover.add_css_class("loft-glow")
-        cover.set_size_request(190, 150)
+        # Cover — placeholder lit-window glow until art loads, then swapped for
+        # the fetched cover image.
+        self._cover = Gtk.Box()
+        self._cover.add_css_class("cover")
+        self._cover.add_css_class("loft-glow")
+        self._cover.set_size_request(190, 150)
         initial = Gtk.Label(label=title.name[:1].upper())
         initial.add_css_class("title-1")
         initial.set_vexpand(True)
-        cover.append(initial)
-        box.append(cover)
+        self._cover.append(initial)
+        box.append(self._cover)
+
+        if art_service is not None:
+            art_service.load(title, self._on_art_loaded)
 
         name = Gtk.Label(label=title.name, xalign=0, wrap=True, lines=2)
         name.add_css_class("title")
@@ -52,15 +56,31 @@ class GameCard(Gtk.Button):
 
         self.set_child(box)
 
+    def _on_art_loaded(self, paintable) -> None:
+        if paintable is None:
+            return  # keep the lit-window placeholder
+        child = self._cover.get_first_child()
+        while child is not None:
+            nxt = child.get_next_sibling()
+            self._cover.remove(child)
+            child = nxt
+        picture = Gtk.Picture(paintable=paintable)
+        picture.set_content_fit(Gtk.ContentFit.COVER)
+        picture.set_size_request(190, 150)
+        picture.add_css_class("cover")
+        self._cover.remove_css_class("loft-glow")
+        self._cover.append(picture)
+
 
 class GameGrid(Gtk.ScrolledWindow):
     __gsignals__ = {
         "title-activated": (GObject.SignalFlags.RUN_FIRST, None, (object,)),
     }
 
-    def __init__(self, status_pinger) -> None:
+    def __init__(self, status_pinger, art_service=None) -> None:
         super().__init__(hexpand=True, vexpand=True)
         self._status = status_pinger
+        self._art = art_service
         # status_url -> list[GameCard] to update when a ping returns.
         self._by_status_url: dict[str, list[GameCard]] = {}
         self._catalog: Catalog | None = None
@@ -146,7 +166,8 @@ class GameGrid(Gtk.ScrolledWindow):
 
         for title in titles:
             category = self._catalog.category(title.category)
-            card = GameCard(title, category.name if category else title.category)
+            card = GameCard(title, category.name if category else title.category,
+                            art_service=self._art)
             card.connect("clicked", self._on_card_clicked)
             self._flow.append(card)
 

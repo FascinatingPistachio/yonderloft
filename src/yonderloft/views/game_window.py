@@ -22,6 +22,7 @@ class GameWindow(Adw.Window):
         )
         self._app = application
         self._title = title
+        self._server = server
         self.set_icon_name(application.get_application_id())
 
         toolbar = Adw.ToolbarView()
@@ -36,6 +37,12 @@ class GameWindow(Adw.Window):
         clear.connect("clicked", self._on_clear_data)
         header.pack_end(clear)
 
+        # Browser fallback — if the embedded runtime can't render the title.
+        browser = Gtk.Button(icon_name="web-browser-symbolic")
+        browser.set_tooltip_text(_("Open this game in your browser"))
+        browser.connect("clicked", self._on_open_browser)
+        header.pack_end(browser)
+
         toolbar.add_top_bar(header)
 
         view.set_hexpand(True)
@@ -47,6 +54,9 @@ class GameWindow(Adw.Window):
             toolbar.add_top_bar(banner)
 
         self.set_content(toolbar)
+
+    def _on_open_browser(self, _button) -> None:
+        Gtk.UriLauncher.new(self._server.url).launch(self, None, None)
 
     def _on_clear_data(self, _button) -> None:
         dialog = Adw.AlertDialog(

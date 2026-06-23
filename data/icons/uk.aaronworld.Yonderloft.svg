@@ -10,39 +10,42 @@
 -->
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="frame" x1="64" y1="14" x2="64" y2="104" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#352E4B"/>
-      <stop offset="1" stop-color="#221D30"/>
+    <linearGradient id="frame" x1="64" y1="12" x2="64" y2="104" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3A3252"/>
+      <stop offset="1" stop-color="#201B2D"/>
     </linearGradient>
-    <linearGradient id="sill" x1="64" y1="95" x2="64" y2="112" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4A4361"/>
+    <linearGradient id="sill" x1="64" y1="94" x2="64" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4E4666"/>
       <stop offset="1" stop-color="#2B2641"/>
     </linearGradient>
     <!-- Warm loft light. Gradient lives only on this curved/lit surface. -->
-    <radialGradient id="glass" cx="64" cy="40" r="52" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFEAAE"/>
-      <stop offset="0.5" stop-color="#F7BE26"/>
+    <radialGradient id="glass" cx="60" cy="42" r="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFF1C4"/>
+      <stop offset="0.42" stop-color="#FBC638"/>
       <stop offset="1" stop-color="#E5A50A"/>
+    </radialGradient>
+    <!-- Soft light bloom over the upper-left pane, no hard edge. -->
+    <radialGradient id="bloom" cx="55" cy="42" r="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFBEC" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#FFFBEC" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
   <!-- Rim-light: a slightly lighter plate peeking 2px above the frame. -->
-  <rect x="24" y="14" width="80" height="90" rx="18" fill="#3F3759"/>
+  <rect x="23" y="12" width="82" height="92" rx="19" fill="#453C63"/>
 
   <!-- Dusk window frame. -->
-  <rect x="24" y="16" width="80" height="88" rx="17" fill="url(#frame)"/>
+  <rect x="23" y="14" width="82" height="90" rx="18" fill="url(#frame)"/>
 
-  <!-- Lit glass. -->
-  <rect x="34" y="26" width="60" height="64" rx="8" fill="url(#glass)"/>
-
-  <!-- A brighter core where the light sits, kept inside the glass. -->
-  <ellipse cx="58" cy="44" rx="22" ry="20" fill="#FFF3CC" opacity="0.45"/>
+  <!-- Lit glass, with a soft warm bloom on top. -->
+  <rect x="33" y="25" width="62" height="66" rx="9" fill="url(#glass)"/>
+  <rect x="33" y="25" width="62" height="66" rx="9" fill="url(#bloom)"/>
 
   <!-- Muntins (window bars), in the dusk colour. -->
-  <rect x="61" y="26" width="6" height="64" fill="#231E32"/>
-  <rect x="34" y="55" width="60" height="6" fill="#231E32"/>
+  <rect x="60.5" y="25" width="7" height="66" fill="#231E33"/>
+  <rect x="33" y="54.5" width="62" height="7" fill="#231E33"/>
 
   <!-- Sill with a darker front lip for Adwaita depth. -->
-  <rect x="19" y="94" width="90" height="13" rx="4" fill="url(#sill)"/>
-  <rect x="19" y="101" width="90" height="6" rx="3" fill="#191523"/>
+  <rect x="18" y="93" width="92" height="14" rx="4" fill="url(#sill)"/>
+  <rect x="18" y="100" width="92" height="7" rx="3" fill="#181420"/>
 </svg>

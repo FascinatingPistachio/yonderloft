@@ -20,7 +20,7 @@
         { "name": "Main", "url": "https://newcp.net/", "status_url": "https://newcp.net/", "default": true }
       ],
       "tags": ["flash", "as3"],
-      "notes": "Runtime provisional: Ruffle's AS3 coverage for the CP client is incomplete; using sandboxed Flash until verified. See README §6.",
+      "notes": "AS3 — played through Ruffle, whose AS3 coverage is still improving. If it doesn't load, use Open in browser.",
       "homepage": "https://newcp.net/"
     },
     {

@@ -27,7 +27,7 @@ class RuntimeRouter:
             Runtime.WEB: WebRuntime(),
             Runtime.RUFFLE: RuffleRuntime(),
             Runtime.FLASH: FlashRuntime(),
-            Runtime.CLIENT: ClientRuntime(),
+            Runtime.CLIENT: ClientRuntime(application),
         }
 
     def backend_for(self, title: Title) -> RuntimeBackend:

@@ -50,14 +50,15 @@ class DetailPage(Adw.NavigationPage):
     # -- Sections -----------------------------------------------------------
     def _build_hero(self, category_name: str) -> Gtk.Widget:
         hero = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
-        art = Gtk.Box()
-        art.add_css_class("cover")
-        art.add_css_class("loft-glow")
-        art.set_size_request(-1, 220)
+        self._art_box = Gtk.Box()
+        self._art_box.add_css_class("cover")
+        self._art_box.add_css_class("loft-glow")
+        self._art_box.set_size_request(-1, 220)
         initial = Gtk.Label(label=self._title.name[:1].upper(), vexpand=True)
         initial.add_css_class("title-1")
-        art.append(initial)
-        hero.append(art)
+        self._art_box.append(initial)
+        hero.append(self._art_box)
+        self._app.art.load(self._title, self._on_art_loaded)
 
         name = Gtk.Label(label=self._title.name, xalign=0)
         name.add_css_class("title-1")
@@ -73,6 +74,21 @@ class DetailPage(Adw.NavigationPage):
         self._status_dot = StatusDot(self._app.status.cached(self._server.status_url))
         hero.append(self._status_dot)
         return hero
+
+    def _on_art_loaded(self, paintable) -> None:
+        if paintable is None:
+            return
+        child = self._art_box.get_first_child()
+        while child is not None:
+            nxt = child.get_next_sibling()
+            self._art_box.remove(child)
+            child = nxt
+        picture = Gtk.Picture(paintable=paintable)
+        picture.set_content_fit(Gtk.ContentFit.COVER)
+        picture.set_size_request(-1, 220)
+        picture.add_css_class("cover")
+        self._art_box.remove_css_class("loft-glow")
+        self._art_box.append(picture)
 
     def _build_server_picker(self) -> Gtk.Widget:
         group = Adw.PreferencesGroup(title=_("Server"))

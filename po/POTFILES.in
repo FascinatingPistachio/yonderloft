@@ -5,3 +5,4 @@ src/yonderloft/window.py
 src/yonderloft/views/grid.py
 src/yonderloft/views/detail.py
 src/yonderloft/views/game_window.py
+src/yonderloft/views/client_window.py
