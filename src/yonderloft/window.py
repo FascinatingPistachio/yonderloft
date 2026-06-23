@@ -1,4 +1,4 @@
-"""Main window: navigation split view with a sidebar and the card grid."""
+"""Main shell container workspace window."""
 from __future__ import annotations
 
 from gi.repository import Adw, Gio, Gtk
@@ -9,7 +9,6 @@ from .views.grid import GameGrid
 
 _ = __import__("gettext").gettext
 
-# Pinned sidebar rows that aren't catalog categories.
 _PIN_ALL = "__all__"
 _PIN_FAVORITES = "__favorites__"
 _PIN_RECENT = "__recent__"
@@ -21,7 +20,7 @@ class YonderloftWindow(Adw.ApplicationWindow):
         self._app = application
         self._catalog: Catalog | None = None
 
-        self.set_size_request(360, 480)
+        self.set_size_request(400, 500)
         self._bind_window_state()
 
         self._grid = GameGrid(application.status, application.art)
@@ -34,15 +33,14 @@ class YonderloftWindow(Adw.ApplicationWindow):
             sidebar=self._build_sidebar(),
             content=Adw.NavigationPage(title="Yonderloft", child=self._content_nav),
         )
-        self._split.set_min_sidebar_width(200)
-        self._split.set_max_sidebar_width(280)
+        self._split.set_min_sidebar_width(220)
+        self._split.set_max_sidebar_width(290)
 
         self.set_content(self._split)
 
         application.catalog.connect("catalog-loaded", self._on_catalog_loaded)
         application.catalog.connect("catalog-error", self._on_catalog_error)
 
-    # -- Window state -------------------------------------------------------
     def _bind_window_state(self) -> None:
         settings = self._app.settings
         self.set_default_size(
@@ -61,13 +59,14 @@ class YonderloftWindow(Adw.ApplicationWindow):
         settings.set_boolean("window-maximized", self.is_maximized())
         return False
 
-    # -- Sidebar ------------------------------------------------------------
     def _build_sidebar(self) -> Adw.NavigationPage:
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
 
         self._search_button = Gtk.ToggleButton(icon_name="system-search-symbolic")
+        self._search_button.add_css_class("flat")
         self._search_button.connect("toggled", self._on_search_toggled)
+        
         header.pack_end(self._search_button)
         header.pack_end(self._build_menu_button())
         toolbar.add_top_bar(header)
@@ -88,7 +87,7 @@ class YonderloftWindow(Adw.ApplicationWindow):
 
     def _populate_pins(self) -> None:
         for key, label, icon in (
-            (_PIN_ALL, _("All"), "view-grid-symbolic"),
+            (_PIN_ALL, _("All Games"), "view-grid-symbolic"),
             (_PIN_FAVORITES, _("Favorites"), "starred-symbolic"),
             (_PIN_RECENT, _("Recent"), "document-open-recent-symbolic"),
         ):
@@ -97,31 +96,39 @@ class YonderloftWindow(Adw.ApplicationWindow):
 
     def _sidebar_row(self, key: str, label: str, icon: str | None = None) -> Gtk.ListBoxRow:
         row = Gtk.ListBoxRow()
-        row.filter_key = key  # type: ignore[attr-defined]
-        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12,
-                      margin_top=6, margin_bottom=6, margin_start=6, margin_end=6)
+        row.filter_key = key  # type: ignore
+        
+        box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        box.set_margin_top(8)
+        box.set_margin_bottom(8)
+        box.set_margin_start(12)
+        box.set_margin_end(12)
+        
         if icon:
-            box.append(Gtk.Image.new_from_icon_name(icon))
-        box.append(Gtk.Label(label=label, xalign=0))
+            img = Gtk.Image.new_from_icon_name(icon)
+            box.append(img)
+        else:
+            box.append(Gtk.Image.new_from_icon_name("tag-symbolic"))
+            
+        lbl = Gtk.Label(label=label, xalign=0)
+        box.append(lbl)
         row.set_child(box)
         return row
 
     def _rebuild_categories(self, catalog: Catalog) -> None:
-        # Drop any previously-added category rows (index >= 3), keep the 3 pins.
         while True:
             row = self._sidebar_list.get_row_at_index(3)
             if row is None:
                 break
             self._sidebar_list.remove(row)
-        # Only show categories that actually have titles.
+            
         for category in catalog.categories:
             if catalog.titles_in(category.id):
                 self._sidebar_list.append(self._sidebar_row(category.id, category.name))
 
-    # -- Search -------------------------------------------------------------
     def _build_search(self) -> tuple[Gtk.SearchBar, Gtk.SearchEntry]:
         entry = Gtk.SearchEntry(hexpand=True)
-        entry.set_placeholder_text(_("Search games"))
+        entry.set_placeholder_text(_("Search launcher library..."))
         entry.connect("search-changed", self._on_search_changed)
         bar = Gtk.SearchBar()
         bar.set_child(entry)
@@ -131,26 +138,25 @@ class YonderloftWindow(Adw.ApplicationWindow):
 
     def _build_menu_button(self) -> Gtk.MenuButton:
         menu = Gio.Menu()
-        menu.append(_("Refresh catalog"), "app.refresh")
+        menu.append(_("Refresh Catalog"), "app.refresh")
         menu.append(_("Preferences"), "app.preferences")
         menu.append(_("About Yonderloft"), "app.about")
         menu.append(_("Quit"), "app.quit")
         button = Gtk.MenuButton(icon_name="open-menu-symbolic", menu_model=menu)
+        button.add_css_class("flat")
         return button
 
-    # -- Content ------------------------------------------------------------
     def _build_grid_page(self) -> Adw.NavigationPage:
         toolbar = Adw.ToolbarView()
         header = Adw.HeaderBar()
-        self._content_title = Adw.WindowTitle(title=_("All games"), subtitle="")
+        self._content_title = Adw.WindowTitle(title=_("All Games"), subtitle="")
         header.set_title_widget(self._content_title)
         toolbar.add_top_bar(header)
         toolbar.set_content(self._grid)
-        page = Adw.NavigationPage(title=_("All games"), child=toolbar)
+        page = Adw.NavigationPage(title=_("All Games"), child=toolbar)
         page.set_tag("grid")
         return page
 
-    # -- Catalog wiring -----------------------------------------------------
     def _on_catalog_loaded(self, _service, catalog: Catalog, source: str) -> None:
         self._catalog = catalog
         self._rebuild_categories(catalog)
@@ -158,30 +164,30 @@ class YonderloftWindow(Adw.ApplicationWindow):
         self._update_content_subtitle(source)
 
     def _on_catalog_error(self, _service, message: str) -> None:
-        # No catalog at all — show the message in the content title area.
         self._content_title.set_subtitle(message)
 
     def _update_content_subtitle(self, source: str) -> None:
         if self._catalog is None:
             return
         n = len(self._catalog.titles)
-        note = {"remote": "", "cache": _(" · offline (cached)"),
-                "bundled": _(" · offline (bundled)")}.get(source, "")
-        self._content_title.set_subtitle(_("%d games") % n + note)
+        note = {
+            "remote": "",
+            "cache": _(" · Offline (Cached)"),
+            "bundled": _(" · Offline (Bundled)")
+        }.get(source, "")
+        self._content_title.set_subtitle(_("%d titles discovered") % n + note)
 
-    # -- Events -------------------------------------------------------------
     def _on_sidebar_row_selected(self, _list, row) -> None:
         if row is None:
             return
         key = getattr(row, "filter_key", _PIN_ALL)
-        # Selecting anything in the sidebar pops back to the grid.
         self._content_nav.pop_to_tag("grid")
         self._apply_filter(key)
 
     def _apply_filter(self, key: str) -> None:
         if key == _PIN_ALL:
             self._grid.set_titles_filter(None)
-            self._content_title.set_title(_("All games"))
+            self._content_title.set_title(_("All Games"))
         elif key == _PIN_FAVORITES:
             self._grid.set_titles_filter(set(self._app.settings.get_strv("favorites")))
             self._content_title.set_title(_("Favorites"))
@@ -207,5 +213,4 @@ class YonderloftWindow(Adw.ApplicationWindow):
         self._content_nav.push(page)
 
     def play_game(self, page) -> None:
-        """Push a game page onto the content stack (called by the runtime router)."""
-        self._content_nav.push(page)
+        self._content_nav.push(page)S

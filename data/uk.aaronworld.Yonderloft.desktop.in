@@ -11,3 +11,4 @@ Type=Application
 Categories=Game;Launcher;
 StartupNotify=true
 StartupWMClass=uk.aaronworld.Yonderloft
+Categories=Game;Utility;Qt;GTK;

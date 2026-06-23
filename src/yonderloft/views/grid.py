@@ -1,37 +1,32 @@
-"""The card grid — a FlowBox of game cards with live status badges.
-
-Note: the README sketches an ``AdwFlowBox``; GTK/Adwaita ships ``Gtk.FlowBox``,
-which is what we use (libadwaita has no flow box of its own).
-"""
+"""Card workspace display dashboard matrix module view."""
 from __future__ import annotations
 
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GObject, Gtk, Pango, Adw
 
 from ..models import Catalog, Status, Title
 from .widgets import StatusDot, runtime_label
 
 _ = __import__("gettext").gettext
 
-
-_COVER_W = 232
-_COVER_H = 132  # ~16:9 banner, matches typical fetched og:image art
+_COVER_W = 240
+_COVER_H = 135  # Perfect 16:9 widescreen asset factor ratio
 
 
 class GameCard(Gtk.Button):
-    """A single game card: a banner cover with overlaid status/runtime chips and
-    a title beneath. A flat button so the whole card is one click target."""
-
     def __init__(self, title: Title, category_name: str, art_service=None) -> None:
         super().__init__()
         self.title = title
         self.add_css_class("game-card")
         self.add_css_class("flat")
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         box.set_size_request(_COVER_W, -1)
 
-        # Cover: an overlay of the art (or lit-window placeholder) with a bottom
-        # scrim, a runtime chip, and a live status chip.
+        # Isolated structural frame container wrapper
+        self.frame = Gtk.Box()
+        self.frame.add_css_class("cover-frame")
+        self.frame.set_size_request(_COVER_W, _COVER_H)
+
         overlay = Gtk.Overlay()
         overlay.set_size_request(_COVER_W, _COVER_H)
 
@@ -39,8 +34,9 @@ class GameCard(Gtk.Button):
         self._cover.add_css_class("cover")
         self._cover.add_css_class("cover-ph")
         self._cover.set_size_request(_COVER_W, _COVER_H)
+        
         ph_icon = Gtk.Image.new_from_icon_name("uk.aaronworld.Yonderloft-symbolic")
-        ph_icon.set_pixel_size(44)
+        ph_icon.set_pixel_size(48)
         ph_icon.add_css_class("cover-ph-icon")
         ph_icon.set_hexpand(True)
         ph_icon.set_vexpand(True)
@@ -49,21 +45,25 @@ class GameCard(Gtk.Button):
 
         scrim = Gtk.Box(valign=Gtk.Align.END)
         scrim.add_css_class("cover-scrim")
-        scrim.set_size_request(-1, 48)
+        scrim.set_size_request(-1, 52)
         overlay.add_overlay(scrim)
 
-        runtime_chip = Gtk.Label(label=runtime_label(title.runtime),
-                                 halign=Gtk.Align.START, valign=Gtk.Align.END)
+        runtime_chip = Gtk.Label(
+            label=runtime_label(title.runtime),
+            halign=Gtk.Align.START, 
+            valign=Gtk.Align.END
+        )
         runtime_chip.add_css_class("cover-chip")
         overlay.add_overlay(runtime_chip)
 
         self.status_dot = StatusDot()
-        self.status_dot.add_css_class("cover-chip")
+        self.status_dot.add_css_class("status-dot")
         self.status_dot.set_halign(Gtk.Align.END)
         self.status_dot.set_valign(Gtk.Align.START)
         overlay.add_overlay(self.status_dot)
 
-        box.append(overlay)
+        self.frame.append(overlay)
+        box.append(self.frame)
 
         if art_service is not None:
             art_service.load(title, self._on_art_loaded)
@@ -81,16 +81,17 @@ class GameCard(Gtk.Button):
 
     def _on_art_loaded(self, paintable) -> None:
         if paintable is None:
-            return  # keep the lit-window placeholder
+            return
         child = self._cover.get_first_child()
         while child is not None:
             nxt = child.get_next_sibling()
             self._cover.remove(child)
             child = nxt
+            
         picture = Gtk.Picture(paintable=paintable)
         picture.set_content_fit(Gtk.ContentFit.COVER)
         picture.set_size_request(_COVER_W, _COVER_H)
-        picture.add_css_class("cover")
+        
         self._cover.remove_css_class("cover-ph")
         self._cover.append(picture)
 
@@ -104,12 +105,11 @@ class GameGrid(Gtk.ScrolledWindow):
         super().__init__(hexpand=True, vexpand=True)
         self._status = status_pinger
         self._art = art_service
-        # status_url -> list[GameCard] to update when a ping returns.
         self._by_status_url: dict[str, list[GameCard]] = {}
         self._catalog: Catalog | None = None
         self._category_filter: str | None = None
-        self._id_filter: set[str] | None = None  # for Favorites / Recent
-        self._id_order: list[str] | None = None   # preserve Recent ordering
+        self._id_filter: set[str] | None = None
+        self._id_order: list[str] | None = None
         self._query: str = ""
 
         self._status.connect("status-changed", self._on_status_changed)
@@ -118,24 +118,28 @@ class GameGrid(Gtk.ScrolledWindow):
             valign=Gtk.Align.START,
             max_children_per_line=8,
             min_children_per_line=2,
-            row_spacing=18,
-            column_spacing=18,
+            row_spacing=24,
+            column_spacing=20,
             homogeneous=True,
             selection_mode=Gtk.SelectionMode.NONE,
         )
-        self._flow.set_margin_top(18)
-        self._flow.set_margin_bottom(18)
-        self._flow.set_margin_start(18)
-        self._flow.set_margin_end(18)
+        self._flow.set_margin_top(24)
+        self._flow.set_margin_bottom(24)
+        self._flow.set_margin_start(24)
+        self._flow.set_margin_end(24)
 
         self._empty = self._build_empty_state()
 
         self._stack = Gtk.Stack()
         self._stack.add_named(self._flow, "grid")
         self._stack.add_named(self._empty, "empty")
+        
+        # Smooth state shifting transitions 
+        self._stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self._stack.set_transition_duration(200)
+        
         self.set_child(self._stack)
 
-    # -- Public API ---------------------------------------------------------
     def set_catalog(self, catalog: Catalog) -> None:
         self._catalog = catalog
         self._rebuild()
@@ -147,7 +151,6 @@ class GameGrid(Gtk.ScrolledWindow):
         self._rebuild()
 
     def set_titles_filter(self, ids: set[str] | None, keep_order: bool = False) -> None:
-        """Restrict to a set of title IDs (Favorites / Recent). None = All."""
         self._category_filter = None
         self._id_filter = ids
         self._id_order = list(ids) if (ids is not None and keep_order) else None
@@ -157,7 +160,6 @@ class GameGrid(Gtk.ScrolledWindow):
         self._query = query or ""
         self._rebuild()
 
-    # -- Building -----------------------------------------------------------
     def _visible_titles(self) -> list[Title]:
         if self._catalog is None:
             return []
@@ -189,8 +191,11 @@ class GameGrid(Gtk.ScrolledWindow):
 
         for title in titles:
             category = self._catalog.category(title.category)
-            card = GameCard(title, category.name if category else title.category,
-                            art_service=self._art)
+            card = GameCard(
+                title, 
+                category.name if category else title.category,
+                art_service=self._art
+            )
             card.connect("clicked", self._on_card_clicked)
             self._flow.append(card)
 
@@ -198,28 +203,32 @@ class GameGrid(Gtk.ScrolledWindow):
             self._by_status_url.setdefault(status_url, []).append(card)
             card.status_dot.set_status(self._status.cached(status_url))
 
-        # Kick off status checks for everything now visible.
         for status_url in self._by_status_url:
             self._status.ping(status_url)
 
     def _build_empty_state(self) -> Gtk.Widget:
-        status = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=12,
-                         valign=Gtk.Align.CENTER, halign=Gtk.Align.CENTER,
-                         vexpand=True)
-        status.add_css_class("loft-glow")
-        icon = Gtk.Image.new_from_icon_name("uk.aaronworld.Yonderloft-symbolic")
-        icon.set_pixel_size(96)
-        icon.add_css_class("dim-label")
-        heading = Gtk.Label(label=_("Nothing here"))
-        heading.add_css_class("title-2")
-        body = Gtk.Label(label=_("No games match. Try another category or search."))
-        body.add_css_class("dim-label")
-        status.append(icon)
-        status.append(heading)
-        status.append(body)
-        return status
+        # Rebuilt empty layout matching Adw.StatusPage standard spacing rulesets
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
+        box.add_css_class("loft-status-page")
+        box.set_valign(Gtk.Align.CENTER)
+        box.set_halign(Gtk.Align.CENTER)
+        box.set_vexpand(True)
 
-    # -- Status wiring ------------------------------------------------------
+        icon = Gtk.Image.new_from_icon_name("system-search-symbolic")
+        icon.set_pixel_size(72)
+        icon.add_css_class("dim-label")
+        box.append(icon)
+
+        title = Gtk.Label(label=_("No Matching Games Found"))
+        title.add_css_class("title")
+        box.append(title)
+
+        desc = Gtk.Label(label=_("Try checking your spelling or select a different filter category."))
+        desc.add_css_class("dim-label")
+        box.append(desc)
+
+        return box
+
     def _on_status_changed(self, _pinger, status_url: str, status: Status) -> None:
         for card in self._by_status_url.get(status_url, []):
             card.status_dot.set_status(status)

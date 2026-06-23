@@ -1,143 +1,143 @@
-/* Yonderloft — a quiet shell around loud old content.
- *
- * Aesthetic: Cartridges' clean libadwaita cover grid + Twintail's immersive
- * banner hero, with the loft-amber as the single warm accent. The art is the
- * colour; the chrome stays disciplined and neutral. */
+/* Yonderloft — A clean, modern shell around loud classic content.
+ * Balanced Libadwaita visual framework using clean geometric shapes and light effects. */
 
-@define-color loft_amber  #E5A50A;
-@define-color loft_amber_bright #FFC83D;
-@define-color loft_dusk   #241F31;
-@define-color loft_paper  #FAF8F5;
-@define-color loft_slate  #5E5C64;
-@define-color loft_green  #2EC27E;
-@define-color loft_red    #E01B24;
-@define-color loft_orange #FF7800;
+@define-color loft_amber          #e5a50a;
+@define-color loft_amber_bright   #ffc83d;
+@define-color loft_dusk           #241f31;
+@define-color loft_slate          #5e5c64;
+@define-color loft_green          #2ec27e;
+@define-color loft_red            #e01b24;
+@define-color loft_orange         #ff7800;
 
-/* --- Amber accent ------------------------------------------------------- */
-/* The Play button and other "go" affordances carry the warm loft light. */
+/* --- Main UI Accent Overrides ------------------------------------------- */
 .loft-play {
   background-image: linear-gradient(to bottom, @loft_amber_bright, @loft_amber);
   color: @loft_dusk;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 10px 28px;
-  box-shadow: 0 1px 2px alpha(black, 0.25);
-  text-shadow: none;
-  -gtk-icon-shadow: none;
+  font-weight: bold;
+  border-radius: 24px;
+  padding: 8px 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 .loft-play:hover {
   background-image: linear-gradient(to bottom, @loft_amber_bright, @loft_amber_bright);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px alpha(@loft_amber_bright, 0.4);
 }
-.loft-play:active { background-image: linear-gradient(to bottom, @loft_amber, @loft_amber); }
 
-/* Selected sidebar row gets a warm marker rather than the stock blue. */
+.loft-play:active {
+  background-image: linear-gradient(to bottom, @loft_amber, @loft_amber);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Sidebar Styling Alignment */
+list.navigation-sidebar {
+  background-color: transparent;
+  padding: 6px;
+}
+
+list.navigation-sidebar > row {
+  border-radius: 10px;
+  margin: 2px 6px;
+  padding: 2px;
+  transition: background-color 150ms ease;
+}
+
 list.navigation-sidebar > row:selected {
-  background: alpha(@loft_amber, 0.16);
-  color: inherit;
-  box-shadow: inset 3px 0 0 @loft_amber;
-}
-
-/* --- Game card (Cartridges-style) --------------------------------------- */
-.game-card {
-  padding: 0;
-  background: transparent;
-  border-radius: 14px;
-  transition: transform 160ms ease;
-}
-/* GTK disables these transitions automatically under reduced-motion. */
-.game-card:hover { transform: translateY(-4px); }
-
-/* The cover is a landscape banner (matches fetched og:image art). */
-.cover {
-  border-radius: 14px;
-  background-color: @loft_dusk;
-  box-shadow: 0 2px 6px alpha(black, 0.28);
-  transition: box-shadow 160ms ease;
-}
-.game-card:hover .cover {
-  /* a soft warm glow on lift, like light from the loft window */
-  box-shadow: 0 8px 22px alpha(black, 0.35), 0 0 0 1px alpha(@loft_amber, 0.55);
-}
-
-.game-card .title {
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-/* Art-less placeholder: a flat dusk panel with a quiet window glyph — not a
- * blurry glow. */
-.cover-ph {
-  background-image: linear-gradient(to bottom, #2A2440, #211C2E);
-}
-.cover-ph-icon {
-  color: alpha(@loft_amber, 0.55);
-  opacity: 0.9;
-}
-
-/* Bottom scrim so overlaid chips/titles stay legible over bright art. */
-.cover-scrim {
-  border-radius: 0 0 14px 14px;
-  background-image: linear-gradient(to top, alpha(@loft_dusk, 0.85), transparent);
-}
-
-/* Small pill chips overlaid on the cover (runtime, status). */
-.cover-chip {
-  background: alpha(@loft_dusk, 0.72);
-  color: white;
-  border-radius: 999px;
-  padding: 2px 9px;
-  margin: 8px;
-  font-size: 0.78em;
+  background-color: alpha(@loft_amber, 0.12);
+  color: @loft_amber;
   font-weight: 600;
 }
 
-/* Technical metadata — the "this is a real tool" mono voice. */
-.mono,
-.tech-meta {
-  font-family: "Adwaita Mono", "Source Code Pro", monospace;
-  font-size: 0.85em;
-  color: @loft_slate;
+list.navigation-sidebar > row:selected image {
+  color: @loft_amber;
 }
 
-/* --- Status dot --------------------------------------------------------- */
-.status-dot {
-  min-width: 10px;
-  min-height: 10px;
-  border-radius: 999px;
-  background: @loft_slate;
+/* --- Game Card System (Adwaita-Elevated Grid Elements) ------------------ */
+.game-card {
+  border-radius: 12px;
+  padding: 8px;
+  margin: 0;
+  background-color: transparent;
+  transition: background-color 200ms ease;
 }
-.status-dot.online   { background: @loft_green; box-shadow: 0 0 6px alpha(@loft_green, 0.7); }
-.status-dot.unstable { background: @loft_orange; }
-.status-dot.offline  { background: @loft_red; }
-.status-dot.unknown  { background: @loft_slate; }
 
-/* --- Immersive detail hero (Twintail-style) ----------------------------- */
-.hero {
-  border-radius: 18px;
+.game-card:hover {
+  background-color: var(--view-hover-bg-color, rgba(255, 255, 255, 0.05));
+}
+
+/* Rounded Cover Wrapper */
+.cover-frame {
+  border-radius: 12px;
   background-color: @loft_dusk;
-  box-shadow: 0 6px 24px alpha(black, 0.35);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--view-border-color, rgba(0, 0, 0, 0.15));
+  overflow: hidden;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease;
 }
-.hero-scrim {
-  border-radius: 18px;
-  /* darken the lower half so the title + play button read over any art */
-  background-image: linear-gradient(to top,
-    alpha(@loft_dusk, 0.92) 0%,
-    alpha(@loft_dusk, 0.45) 38%,
-    transparent 72%);
+
+.game-card:hover .cover-frame {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px alpha(@loft_amber, 0.4);
 }
-.hero-title {
+
+/* Text & Labels */
+.game-card .title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--view-fg-color, inherit);
+  margin-top: 4px;
+}
+
+.game-card .runtime-badge {
+  font-size: 0.85rem;
+  color: var(--secondary-fg-color, @loft_slate);
+}
+
+/* Ambient Inner Glow Layouts */
+.cover-ph {
+  background-image: linear-gradient(135deg, #2a2440 0%, #171421 100%);
+}
+
+.cover-ph-icon {
+  color: alpha(@loft_amber, 0.35);
+}
+
+/* Translucent HUD overlay pill elements */
+.cover-chip {
+  background-color: rgba(36, 31, 49, 0.75);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 4px 10px;
+  margin: 8px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cover-scrim {
+  background-image: linear-gradient(to top, rgba(16, 14, 22, 0.85) 0%, rgba(16, 14, 22, 0) 100%);
+}
+
+/* --- Status Interface System -------------------------------------------- */
+.status-dot {
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  margin: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.status-dot.online   { background-color: @loft_green;  box-shadow: 0 0 8px alpha(@loft_green, 0.6); }
+.status-dot.unstable { background-color: @loft_orange; box-shadow: 0 0 8px alpha(@loft_orange, 0.6); }
+.status-dot.offline  { background-color: @loft_red;    box-shadow: 0 0 8px alpha(@loft_red, 0.6); }
+.status-dot.unknown  { background-color: @loft_slate;  }
+
+/* Native Status Alignment Extensions */
+.loft-status-page {
+  padding: 32px;
+}
+.loft-status-page .title {
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: white;
-  text-shadow: 0 1px 8px alpha(black, 0.6);
+  font-size: 1.6rem;
+  margin-top: 12px;
 }
-.hero-sub { color: alpha(white, 0.82); text-shadow: 0 1px 6px alpha(black, 0.6); }
-
-/* The signature loft-window glow, reused in empty/loading/placeholder states. */
-.loft-glow {
-  background-image: radial-gradient(circle at 50% 38%,
-    alpha(@loft_amber, 0.35) 0%,
-    alpha(@loft_amber, 0.0) 70%);
-}
-
-.runtime-badge { font-size: 0.8em; color: @loft_slate; }
