@@ -41,30 +41,51 @@ def _isolation_script(selector: str) -> "WebKit.UserScript":
     source = """
 (function () {
   var SEL = %s;
-  function go() {
-    var el = document.querySelector(SEL);
-    if (!el) { return setTimeout(go, 600); }
-    var node = el;
+  var target = null;
+  function hideOthers() {
+    var node = target;
     while (node && node.parentElement) {
-      var p = node.parentElement;
-      for (var i = 0; i < p.children.length; i++) {
-        if (p.children[i] !== node)
-          p.children[i].style.setProperty('display', 'none', 'important');
+      var p = node.parentElement, kids = p.children;
+      for (var i = 0; i < kids.length; i++) {
+        if (kids[i] !== node) kids[i].style.setProperty('display', 'none', 'important');
       }
       if (p === document.body) break;
       node = p;
     }
+  }
+  function apply() {
+    target = document.querySelector(SEL);
+    if (!target) return false;
     var fs = 'position:fixed;inset:0;left:0;top:0;width:100vw;height:100vh;'
-           + 'max-width:none;max-height:none;margin:0;padding:0;z-index:2147483646;';
-    el.setAttribute('style', (el.getAttribute('style') || '') + ';' + fs);
+           + 'max-width:none;max-height:none;margin:0;padding:0;z-index:2147483647;';
+    target.setAttribute('style', (target.getAttribute('style') || '') + ';' + fs);
+    var a = target.parentElement;
+    while (a && a !== document.body) {
+      a.style.setProperty('overflow', 'visible', 'important');
+      a.style.setProperty('transform', 'none', 'important');
+      a = a.parentElement;
+    }
+    hideOthers();
     document.documentElement.style.setProperty('overflow', 'hidden', 'important');
     document.body.style.setProperty('overflow', 'hidden', 'important');
     document.body.style.setProperty('background', '#241F31', 'important');
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 150);
+    return true;
+  }
+  function start() {
+    if (!apply()) return setTimeout(start, 500);
+    // Keep hiding overlays added later (cookie/consent/privacy banners, modals).
+    try {
+      var mo = new MutationObserver(function () {
+        if (!document.body.contains(target)) { if (!apply()) return; }
+        else hideOthers();
+      });
+      mo.observe(document.body, { childList: true });
+    } catch (e) {}
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 200);
   }
   if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', go);
-  else go();
+    document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();
 """ % json.dumps(selector)
     return WebKit.UserScript.new(

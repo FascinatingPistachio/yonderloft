@@ -59,7 +59,7 @@
     },
     "title": {
       "type": "object",
-      "required": ["id", "name", "category", "runtime", "art", "servers"],
+      "required": ["id", "name", "category", "runtime", "servers"],
       "additionalProperties": false,
       "properties": {
         "id": { "$ref": "#/$defs/slug" },

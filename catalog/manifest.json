@@ -106,7 +106,6 @@
       "name": "Club Penguin Journey",
       "category": "experimental",
       "description": "A Club Penguin recreation aiming to rebuild the original experience era by era.",
-      "art": "art/club-penguin-journey.png",
       "runtime": "web",
       "servers": [
         {
@@ -127,7 +126,6 @@
       "name": "CPZero",
       "category": "penguins",
       "description": "A Club Penguin private server focused on the classic island.",
-      "art": "art/cpzero.png",
       "runtime": "flash",
       "servers": [
         {
@@ -148,7 +146,6 @@
       "name": "Moshi Monsters Rewritten",
       "category": "experimental",
       "description": "A community recreation of the 2008 monster-adoption game. No membership paywall, unlike the original.",
-      "art": "art/moshi-monsters-rewritten.png",
       "runtime": "ruffle",
       "servers": [
         {
@@ -175,7 +172,6 @@
       "name": "We The Pixies",
       "category": "experimental",
       "description": "A Pixie Hollow revival recreating the Disney Fairies world.",
-      "art": "art/we-the-pixies.png",
       "runtime": "flash",
       "servers": [
         {
@@ -195,7 +191,6 @@
       "name": "Fairyabc",
       "category": "experimental",
       "description": "A browser-based Pixie Hollow revival.",
-      "art": "art/fairyabc.png",
       "runtime": "ruffle",
       "servers": [
         {
@@ -220,7 +215,6 @@
       "name": "MyVMK",
       "category": "experimental",
       "description": "A revival of Disney's Virtual Magic Kingdom, with its own downloadable client.",
-      "art": "art/myvmk.png",
       "runtime": "client",
       "servers": [
         {
@@ -245,7 +239,6 @@
       "name": "Toontown Rewritten",
       "category": "experimental",
       "description": "The long-running revival of Disney's Toontown Online, with its own native launcher and client.",
-      "art": "art/toontown-rewritten.png",
       "runtime": "client",
       "servers": [
         {
@@ -271,7 +264,6 @@
       "name": "OpenFusion",
       "category": "experimental",
       "description": "An open-source revival of FusionFall, Cartoon Network's MMO, using a custom launcher and client.",
-      "art": "art/openfusion.png",
       "runtime": "client",
       "servers": [
         {
@@ -297,7 +289,6 @@
       "name": "Panfu",
       "category": "experimental",
       "description": "A revival of the panda virtual world Panfu.",
-      "art": "art/panfu.png",
       "runtime": "ruffle",
       "servers": [
         {
@@ -323,7 +314,6 @@
       "name": "Nicktropolis Timewarp",
       "category": "experimental",
       "description": "A revival of Nickelodeon's Nicktropolis virtual world.",
-      "art": "art/nicktropolis-timewarp.png",
       "runtime": "ruffle",
       "servers": [
         {

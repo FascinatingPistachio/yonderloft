@@ -83,6 +83,29 @@ def test_catalog_lookups(minimal_manifest_dict):
     assert catalog.title("nope") is None
 
 
+def test_title_parses_tools_and_player_selector(minimal_manifest_dict):
+    minimal_manifest_dict["titles"][0]["player_selector"] = "#game"
+    minimal_manifest_dict["titles"][0]["tools"] = [
+        {"name": "Register", "url": "https://example.com/register/",
+         "hide_selectors": ["nav", ".navbar"]}
+    ]
+    title = Catalog.from_dict(minimal_manifest_dict).titles[0]
+    assert title.player_selector == "#game"
+    assert len(title.tools) == 1
+    assert title.tools[0].name == "Register"
+    assert title.tools[0].hide_selectors == ("nav", ".navbar")
+
+
+def test_title_art_is_optional():
+    title = Title.from_dict({
+        "id": "x", "name": "X", "category": "c", "runtime": "web",
+        "servers": [{"name": "A", "url": "https://a.test/"}],
+    })
+    assert title.art == ""
+    assert title.tools == ()
+    assert title.player_selector == ""
+
+
 @pytest.mark.parametrize("code,status", [
     (0, Status.OFFLINE),
     (200, Status.ONLINE),

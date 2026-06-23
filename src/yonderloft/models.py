@@ -107,7 +107,7 @@ class Title:
             name=d["name"],
             category=d["category"],
             runtime=Runtime(d["runtime"]),
-            art=d["art"],
+            art=d.get("art", ""),
             servers=tuple(Server.from_dict(s) for s in d["servers"]),
             description=d.get("description", ""),
             ruffle=dict(d.get("ruffle", {})),

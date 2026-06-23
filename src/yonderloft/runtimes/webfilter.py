@@ -9,6 +9,7 @@ degrades to "no blocking" rather than crashing.
 from __future__ import annotations
 
 import json
+import os
 
 from gi.repository import GLib
 
@@ -58,7 +59,6 @@ def compile(on_ready=None) -> None:
         gi.require_version("WebKit", "6.0")
         from gi.repository import WebKit
 
-        import os
         store_dir = os.path.join(config.cache_dir(), "contentfilters")
         os.makedirs(store_dir, exist_ok=True)
         store = WebKit.UserContentFilterStore.new(store_dir)

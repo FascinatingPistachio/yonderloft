@@ -23,7 +23,14 @@ class DetailPage(Adw.NavigationPage):
         self._server: Server = title.default_server
 
         toolbar = Adw.ToolbarView()
-        toolbar.add_top_bar(Adw.HeaderBar())
+        header = Adw.HeaderBar()
+        self._fav_button = Gtk.ToggleButton()
+        self._fav_button.set_tooltip_text(_("Add to Favorites"))
+        self._fav_button.set_active(title.id in application.settings.get_strv("favorites"))
+        self._update_fav_icon()
+        self._fav_button.connect("toggled", self._on_fav_toggled)
+        header.pack_end(self._fav_button)
+        toolbar.add_top_bar(header)
 
         clamp = Adw.Clamp(maximum_size=820, margin_top=20, margin_bottom=24,
                           margin_start=12, margin_end=12)
@@ -176,6 +183,23 @@ class DetailPage(Adw.NavigationPage):
         val.set_ellipsize(Pango.EllipsizeMode.END)
         row.add_suffix(val)
         return row, val
+
+    # -- Favorites ----------------------------------------------------------
+    def _update_fav_icon(self) -> None:
+        active = self._fav_button.get_active()
+        self._fav_button.set_icon_name("starred-symbolic" if active
+                                       else "non-starred-symbolic")
+
+    def _on_fav_toggled(self, _button) -> None:
+        settings = self._app.settings
+        favorites = list(settings.get_strv("favorites"))
+        if self._fav_button.get_active():
+            if self._title.id not in favorites:
+                favorites.append(self._title.id)
+        else:
+            favorites = [f for f in favorites if f != self._title.id]
+        settings.set_strv("favorites", favorites)
+        self._update_fav_icon()
 
     # -- Events -------------------------------------------------------------
     def _on_server_selected(self, combo, _param) -> None:
