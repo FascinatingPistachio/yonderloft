@@ -42,16 +42,16 @@ class RuntimeRouter:
             return
 
         # Embedded: build the WebView against this title's isolated session,
-        # then host it in a separate sandboxed game window.
+        # then host it as a page inside the main window.
         session = self._app.profiles.make_web_session(title.id)
         view = backend.build_view(title, server, session)
 
-        from ..views.game_window import GameWindow
-        window = GameWindow(
+        from ..views.game_page import GamePage
+        page = GamePage(
             application=self._app,
             title=title,
             server=server,
             view=view,
             security_note=backend.security_note,
         )
-        window.present()
+        self._app.window.play_game(page)

@@ -115,14 +115,17 @@ release:
     - if: "$CI_COMMIT_TAG"
     - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
   script:
+    # No `set -e` / pipelines here: a `sed | head` that closes the pipe early
+    # raises SIGPIPE and busybox sh exits 141, failing the job even though the
+    # release was created. Resolve the version with awk (no pipe) and check
+    # each step's status explicitly.
     - |
-      set -e
-      apk add --no-cache curl >/dev/null
+      apk add --no-cache curl >/dev/null 2>&1 || { echo "could not install curl"; exit 1; }
 
       if [ -n "$CI_COMMIT_TAG" ]; then
         TAG="$CI_COMMIT_TAG"
       else
-        VERSION=$(sed -n "s/.*version: *'\([^']*\)'.*/\1/p" meson.build | head -n1)
+        VERSION=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
         TAG="v${VERSION}"
       fi
       echo "Resolved release tag: $TAG"
@@ -137,7 +140,7 @@ release:
       PACKAGE_URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/yonderloft/$TAG/$BUNDLE"
       echo "Uploading $BUNDLE -> $PACKAGE_URL"
       curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" \
-        --upload-file "$BUNDLE" "$PACKAGE_URL"
+        --upload-file "$BUNDLE" "$PACKAGE_URL" || { echo "upload failed"; exit 1; }
 
       release-cli create \
         --tag-name "$TAG" \
@@ -145,3 +148,4 @@ release:
         --name "Yonderloft $TAG" \
         --description "Automated Flatpak build for $TAG. Install with: flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install --user $BUNDLE && flatpak run $APP_ID" \
         --assets-link "{\"name\":\"$BUNDLE (Flatpak bundle)\",\"url\":\"$PACKAGE_URL\",\"link_type\":\"package\"}"
+      echo "Released $TAG."

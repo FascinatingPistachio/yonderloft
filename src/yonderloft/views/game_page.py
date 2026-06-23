@@ -1,7 +1,9 @@
-"""The sandboxed game window — a separate window, not the launcher chrome.
+"""A game playing inside the main window, as a page on the content nav stack.
 
-Minimal by design: the game surface, a thin header with the title, a back/close,
-and a "Clear data" affordance that wipes only this title's profile.
+Pushed onto the main window's AdwNavigationView, so it gets a back button and
+feels like one app (rather than a separate window). Thin chrome: title, an
+"open in browser" fallback, and a per-title "clear data" action, over the
+embedded runtime view.
 """
 from __future__ import annotations
 
@@ -12,51 +14,40 @@ from ..models import Server, Title
 _ = __import__("gettext").gettext
 
 
-class GameWindow(Adw.Window):
-    def __init__(self, application, title: Title, server: Server, view, security_note: str = "") -> None:
-        super().__init__(
-            application=application,
-            title=title.name,
-            default_width=1024,
-            default_height=720,
-        )
+class GamePage(Adw.NavigationPage):
+    def __init__(self, application, title: Title, server: Server, view,
+                 security_note: str = "") -> None:
+        super().__init__(title=title.name)
+        self.set_tag(f"game-{title.id}")
         self._app = application
         self._title = title
         self._server = server
-        self.set_icon_name(application.get_application_id())
 
         toolbar = Adw.ToolbarView()
-        header = Adw.HeaderBar()
+        header = Adw.HeaderBar()  # back button is added by the NavigationView
+        header.set_title_widget(Adw.WindowTitle(title=title.name, subtitle=server.name))
 
-        title_widget = Adw.WindowTitle(title=title.name, subtitle=server.name)
-        header.set_title_widget(title_widget)
-
-        # Clear-data button (wipes only this title).
         clear = Gtk.Button(icon_name="user-trash-symbolic")
         clear.set_tooltip_text(_("Clear this game's saved data"))
         clear.connect("clicked", self._on_clear_data)
         header.pack_end(clear)
 
-        # Browser fallback — if the embedded runtime can't render the title.
         browser = Gtk.Button(icon_name="web-browser-symbolic")
         browser.set_tooltip_text(_("Open this game in your browser"))
         browser.connect("clicked", self._on_open_browser)
         header.pack_end(browser)
 
         toolbar.add_top_bar(header)
+        if security_note:
+            toolbar.add_top_bar(Adw.Banner(title=security_note, revealed=True))
 
         view.set_hexpand(True)
         view.set_vexpand(True)
         toolbar.set_content(view)
-
-        if security_note:
-            banner = Adw.Banner(title=security_note, revealed=True)
-            toolbar.add_top_bar(banner)
-
-        self.set_content(toolbar)
+        self.set_child(toolbar)
 
     def _on_open_browser(self, _button) -> None:
-        Gtk.UriLauncher.new(self._server.url).launch(self, None, None)
+        Gtk.UriLauncher.new(self._server.url).launch(self.get_root(), None, None)
 
     def _on_clear_data(self, _button) -> None:
         dialog = Adw.AlertDialog(
@@ -71,10 +62,12 @@ class GameWindow(Adw.Window):
         dialog.set_response_appearance("clear", Adw.ResponseAppearance.DESTRUCTIVE)
         dialog.set_default_response("cancel")
         dialog.connect("response", self._on_clear_response)
-        dialog.present(self)
+        dialog.present(self.get_root())
 
     def _on_clear_response(self, _dialog, response) -> None:
         if response == "clear":
             self._app.profiles.clear(self._title.id)
-            # Close so the next launch starts from a clean, freshly-created profile.
-            self.close()
+            # Leave the game so the next launch starts from a clean profile.
+            nav = self.get_ancestor(Adw.NavigationView)
+            if nav is not None:
+                nav.pop()

@@ -204,3 +204,7 @@ class YonderloftWindow(Adw.ApplicationWindow):
         category = self._catalog.category(title.category) if self._catalog else None
         page = DetailPage(self._app, title, category.name if category else title.category)
         self._content_nav.push(page)
+
+    def play_game(self, page) -> None:
+        """Push a game page onto the content stack (called by the runtime router)."""
+        self._content_nav.push(page)

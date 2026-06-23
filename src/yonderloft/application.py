@@ -32,6 +32,10 @@ class YonderloftApplication(Adw.Application):
         self._window: YonderloftWindow | None = None
         self._setup_actions()
 
+    @property
+    def window(self) -> "YonderloftWindow | None":
+        return self._window
+
     # -- Lifecycle ----------------------------------------------------------
     def do_startup(self) -> None:
         Adw.Application.do_startup(self)
