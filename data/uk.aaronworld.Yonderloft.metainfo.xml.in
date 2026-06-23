@@ -6,43 +6,50 @@
   <project_license>GPL-3.0-or-later</project_license>
 
   <name>Yonderloft</name>
-  <summary>Play rewritten childhood MMOs</summary>
+  <summary>Launch community revival MMOs safely from one native app</summary>
 
   <description>
     <p>
-      Yonderloft is the attic where the old web lives on: a native launcher for the
-      community revivals of shut-down childhood online games — Club Penguin, Moshi
-      Monsters, Bin Weevils, Pixie Hollow, Toontown and more.
+      Yonderloft brings nostalgia back to life with a native launcher for fan-run
+      and revival versions of childhood online games. It discovers live servers,
+      chooses the best runtime automatically, and keeps every title isolated in
+      its own sandboxed profile.
     </p>
     <p>
-      It catalogs confirmed-live revival servers, picks the right runtime for each
-      title automatically (Ruffle for most Flash games, a sandboxed legacy runtime
-      where needed, or a plain web view for HTML5 rewrites), and runs every game in
-      its own isolated, sandboxed profile so nothing leaks between servers.
+      Titles may use Flash, legacy runtime layers, or modern browser rewrites.
+      Yonderloft handles the details so you can browse and play without manual
+      runtime setup, profile collisions, or built-in telemetry.
     </p>
-    <p>Features:</p>
+    <p>Key features:</p>
     <ul>
-      <li>A browsable grid of games with live online/offline status</li>
-      <li>Automatic, per-title runtime selection — no Flash plugin wrangling</li>
-      <li>Per-game isolated profiles and one-click "clear data"</li>
-      <li>A remote catalog, so new games appear without an app update</li>
-      <li>No telemetry</li>
+      <li>Live catalog of confirmed revival game servers</li>
+      <li>Automatic runtime selection for Flash, web, and legacy clients</li>
+      <li>Per-game sandboxed profiles with easy data clearing</li>
+      <li>Remote catalog updates without requiring an app release</li>
+      <li>Independent, privacy-friendly design with no telemetry</li>
     </ul>
     <p>
-      Yonderloft is an independent project. It is not affiliated with or endorsed by
-      any rights holder or revival project, and it hosts no game content of its own.
+      Yonderloft is an independent project and is not affiliated with or endorsed
+      by any rights holder or revival project. It does not host game content;
+      it only connects to community-run servers.
     </p>
   </description>
 
   <launchable type="desktop-id">uk.aaronworld.Yonderloft.desktop</launchable>
 
-  <!-- Screenshots are required for Flathub but must be real, fetchable images:
+  <screenshots>
+    <screenshot type="default">https://raw.githubusercontent.com/FascinatingPistachio/yonderloft/main/data/screenshots/screenshot-1.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/FascinatingPistachio/yonderloft/main/data/screenshots/screenshot-2.png</screenshot>
+    <screenshot>https://raw.githubusercontent.com/FascinatingPistachio/yonderloft/main/data/screenshots/screenshot-3.png</screenshot>
+  </screenshots>
+
+  <!-- Screenshots are required for Flathub and must be real, fetchable images:
        appstreamcli compose downloads them and rejects the component if they
        404. Add them (hosted, or in-repo) before Flathub submission. -->
 
   <url type="homepage">https://aaronworld.uk/yonderloft</url>
-  <url type="bugtracker">https://gitlab.com/FascinatingPistachio/yonderloft/-/issues</url>
-  <url type="vcs-browser">https://gitlab.com/FascinatingPistachio/yonderloft</url>
+  <url type="bugtracker">https://github.com/FascinatingPistachio/yonderloft/issues</url>
+  <url type="vcs-browser">https://github.com/FascinatingPistachio/yonderloft</url>
 
   <developer id="uk.aaronworld">
     <name>Aaron</name>
@@ -67,13 +74,15 @@
     <keyword>ruffle</keyword>
     <keyword>revival</keyword>
     <keyword>nostalgia</keyword>
+    <keyword>online</keyword>
+    <keyword>launcher</keyword>
   </keywords>
 
   <releases>
     <release version="0.1.0" date="2026-06-22" type="development">
       <description>
-        <p>First pre-alpha. Shell, remote catalog, Ruffle and web runtimes,
-        isolated profiles, and live status badges.</p>
+        <p>Pre-alpha release with a browsable revival games catalog, runtime
+        auto-detection, isolated game profiles, and live status.</p>
       </description>
     </release>
   </releases>
