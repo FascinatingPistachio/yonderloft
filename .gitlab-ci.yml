@@ -1,19 +1,20 @@
 # CI for Yonderloft.
 #
-#   check  → catalog validation + Python lint   (every push/MR)
-#   test   → pytest of the GTK-free layer        (every push/MR)
-#   build  → build the Flatpak bundle            (MRs, default branch, tags)
-#   upload → push the bundle to the Package Registry   (tags only)
-#   release→ create a GitLab Release with the bundle    (tags only)
+#   check   → catalog validation + Python lint   (every push/MR)
+#   test    → pytest of the GTK-free layer        (every push/MR)
+#   build   → build the Flatpak bundle            (MRs, default branch, tags)
+#   release → auto-publish a GitLab Release        (default branch + tags)
 #
-# Tag a commit (e.g. `git tag v0.1.0 && git push --tags`) and a new entry appears
-# under Deploy → Releases with the .flatpak attached. No manual upload.
+# Releases are AUTOMATIC: the version comes from a tag (vX.Y.Z) or, on the
+# default branch, from meson.build. If a Release for that version already
+# exists the job skips, so ordinary pushes do nothing — but bumping `version:`
+# in meson.build (or pushing a tag) publishes a new Release with the .flatpak
+# attached, no manual steps.
 
 stages:
   - check
   - test
   - build
-  - upload
   - release
 
 variables:
@@ -22,8 +23,6 @@ variables:
   MANIFEST_PATH: "build-aux/flatpak/uk.aaronworld.Yonderloft.json"
   # The app's runtime (org.gnome.Platform//48) comes from Flathub.
   FLATHUB_REPO: "https://dl.flathub.org/repo/flathub.flatpakrepo"
-  # Where the built bundle is published in the project's generic Package Registry.
-  PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/yonderloft/${CI_COMMIT_TAG}/${BUNDLE}"
 
 # ---------------------------------------------------------------------------
 # check
@@ -99,53 +98,50 @@ flatpak:
     expire_in: 1 week
 
 # ---------------------------------------------------------------------------
-# upload (tags only)
+# release (default branch + tags) — automatic, idempotent
 # ---------------------------------------------------------------------------
 
-# Publish the bundle to the generic Package Registry at a stable, versioned URL
-# so the Release asset link never expires (unlike raw job artifacts).
-upload:
-  stage: upload
-  image: curlimages/curl:latest
+# Resolves the version (tag, or meson.build on the default branch), and if no
+# Release exists for it yet: uploads the built bundle to the Package Registry
+# and creates the Release with it attached. Already-released versions are
+# skipped, so this is safe to run on every push.
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
     - job: flatpak
       artifacts: true
   rules:
     - if: "$CI_COMMIT_TAG"
+    - if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
   script:
-    - 'curl --fail --silent --show-error --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file "${BUNDLE}" "${PACKAGE_REGISTRY_URL}"'
+    - |
+      set -e
+      apk add --no-cache curl >/dev/null
 
-# ---------------------------------------------------------------------------
-# release (tags only)
-# ---------------------------------------------------------------------------
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        TAG="$CI_COMMIT_TAG"
+      else
+        VERSION=$(sed -n "s/.*version: *'\([^']*\)'.*/\1/p" meson.build | head -n1)
+        TAG="v${VERSION}"
+      fi
+      echo "Resolved release tag: $TAG"
 
-# Create the GitLab Release entry and attach the uploaded bundle as a package
-# asset. This is what populates the Release tab.
-release:
-  stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  needs:
-    - job: upload
-  rules:
-    - if: "$CI_COMMIT_TAG"
-  script:
-    - echo "Publishing release ${CI_COMMIT_TAG}"
-  release:
-    tag_name: "${CI_COMMIT_TAG}"
-    name: "Yonderloft ${CI_COMMIT_TAG}"
-    description: |
-      Automated Flatpak build for ${CI_COMMIT_TAG}.
+      CODE=$(curl -s -o /dev/null -w "%{http_code}" --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases/$TAG")
+      if [ "$CODE" = "200" ]; then
+        echo "Release $TAG already exists — nothing to do."
+        exit 0
+      fi
 
-      Download `${BUNDLE}` below and install it with:
+      PACKAGE_URL="$CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/yonderloft/$TAG/$BUNDLE"
+      echo "Uploading $BUNDLE -> $PACKAGE_URL"
+      curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" \
+        --upload-file "$BUNDLE" "$PACKAGE_URL"
 
-          flatpak install --user ${BUNDLE}
-          flatpak run ${APP_ID}
-
-      The bundle pulls its runtime (org.gnome.Platform 48) from Flathub on first
-      install, so a Flathub remote is required:
-      `flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`
-    assets:
-      links:
-        - name: "${BUNDLE} (Flatpak bundle)"
-          url: "${PACKAGE_REGISTRY_URL}"
-          link_type: "package"
+      release-cli create \
+        --tag-name "$TAG" \
+        --ref "$CI_COMMIT_SHA" \
+        --name "Yonderloft $TAG" \
+        --description "Automated Flatpak build for $TAG. Install with: flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo && flatpak install --user $BUNDLE && flatpak run $APP_ID" \
+        --assets-link "{\"name\":\"$BUNDLE (Flatpak bundle)\",\"url\":\"$PACKAGE_URL\",\"link_type\":\"package\"}"
