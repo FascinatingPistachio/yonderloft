@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*' # Triggers the workflow only when you push a tag like "v1.0.0"
+      - 'v*'
 
 jobs:
   build-and-release:
@@ -13,7 +13,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Build the Flatpak bundle using the community action
+      # Install flatpak and flatpak-builder on the host machine
+      - name: Install Flatpak dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+
       - name: Build Flatpak
         uses: flatpak/flatpak-github-actions/flatpak-builder@v6
         with:
@@ -21,7 +26,6 @@ jobs:
           manifest-path: build-aux/flatpak/uk.aaronworld.Yonderloft.json
           cache-key: flatpak-builder-${{ github.sha }}
 
-      # Upload the built artifact to a new GitHub Release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
