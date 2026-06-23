@@ -213,4 +213,4 @@ class YonderloftWindow(Adw.ApplicationWindow):
         self._content_nav.push(page)
 
     def play_game(self, page) -> None:
-        self._content_nav.push(page)S
+        self._content_nav.push(page)
