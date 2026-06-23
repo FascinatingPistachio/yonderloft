@@ -82,6 +82,17 @@ def extract_preview_image(html: str, base_url: str) -> Optional[str]:
     return urljoin(base_url, found) if found else None
 
 
+def cache_base(title_id: str, identity: str) -> str:
+    """Cache filename stem for a title, tied to its declared art source.
+
+    When a title's ``art`` changes in the manifest the stem changes, so the old
+    cached image is no longer matched and the new art is fetched fresh (instead
+    of serving a stale cover forever).
+    """
+    digest = hashlib.sha1((identity or "og").encode("utf-8")).hexdigest()[:8]
+    return f"{title_id}-{digest}"
+
+
 def cache_name(title_id: str, source_url: str) -> str:
     """Deterministic cache filename: stable per (title, source), keeps extension."""
     ext = os.path.splitext(urlsplit(source_url).path)[1].lower()

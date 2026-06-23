@@ -37,7 +37,7 @@ class ArtService(GObject.Object):
     def load(self, title: Title, callback: Callable[[Optional[Gdk.Paintable]], None]) -> None:
         """Resolve and load a title's cover, calling ``callback`` with a
         Gdk.Paintable or None (caller shows a placeholder)."""
-        cached = self._cached_path(title.id)
+        cached = self._cached_path(title)
         if cached:
             callback(self._to_paintable(cached))
             return
@@ -49,13 +49,26 @@ class ArtService(GObject.Object):
             self._scrape_then_fetch(title, callback)
 
     # -- Cache --------------------------------------------------------------
-    def _cached_path(self, title_id: str) -> Optional[str]:
-        matches = glob.glob(os.path.join(self._dir, f"{title_id}.*"))
+    def _cache_base(self, title) -> str:
+        return art.cache_base(title.id, title.art)
+
+    def _cached_path(self, title) -> Optional[str]:
+        matches = glob.glob(os.path.join(self._dir, f"{self._cache_base(title)}.*"))
         return matches[0] if matches else None
 
-    def _save(self, title_id: str, source_url: str, data: bytes) -> str:
-        ext = os.path.splitext(art.cache_name(title_id, source_url))[1]
-        path = os.path.join(self._dir, f"{title_id}{ext}")
+    def _save(self, title, source_url: str, data: bytes) -> str:
+        base = self._cache_base(title)
+        ext = os.path.splitext(art.cache_name(title.id, source_url))[1]
+        path = os.path.join(self._dir, f"{base}{ext}")
+        # Drop any stale covers for this title (old art source, ext, or the
+        # pre-hash "<id>.<ext>" format).
+        for pattern in (f"{title.id}.*", f"{title.id}-*"):
+            for old in glob.glob(os.path.join(self._dir, pattern)):
+                if old != path:
+                    try:
+                        os.remove(old)
+                    except OSError:
+                        pass
         tmp = path + ".tmp"
         with open(tmp, "wb") as fh:
             fh.write(data)
@@ -82,7 +95,7 @@ class ArtService(GObject.Object):
             body, ok, ctype = b"", False, None
 
         if ok and body and art.looks_like_image(ctype, body):
-            path = self._save(title.id, url, body)
+            path = self._save(title, url, body)
             callback(self._to_paintable(path))
             return
         self._next(title, callback, allow_scrape)
