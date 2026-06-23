@@ -1,58 +1,77 @@
-"""``ruffle`` runtime: render Flash with the bundled Ruffle (Rust/WASM) emulator.
+"""``ruffle`` runtime: render Flash with Ruffle (Rust/WASM), loaded over https.
 
-Two modes:
+Why https/CDN and not the bundled copy: Ruffle's self-hosted assets loaded from
+a ``file://`` path into an ``https://`` game page are blocked by the browser as
+mixed content, so Ruffle never initialises. Loading Ruffle over https from its
+CDN avoids that. (The game's own SWF is fetched from the live server as usual.)
 
-* **Polyfill** (``swf_url`` is null): load the server's own page and inject
-  Ruffle's self-hosted ``ruffle.js`` so its ``<embed>``/``<object>`` Flash is
-  taken over by Ruffle. This is the common case — the page loads its own SWF.
-* **Direct** (``swf_url`` set): build a minimal host page that embeds Ruffle and
-  loads the given SWF with the title's flashvars.
-
-Ruffle is bundled with the app (MIT/Apache). Its location is resolved from
-``$YONDERLOFT_RUFFLE_DIR`` or ``<pkgdatadir>/ruffle``. If it isn't present the
-runtime reports cleanly rather than silently falling back to insecure Flash.
+"Just the player": for these web titles we also inject a stylesheet that blows
+the Ruffle player up to fill the window, so you get the game and not the
+surrounding website chrome.
 """
 from __future__ import annotations
 
 import json
-import os
-from typing import Optional
 
 import gi
 
 gi.require_version("WebKit", "6.0")
-from gi.repository import GLib, WebKit
+from gi.repository import WebKit
 
-from .. import config
 from ..models import Server, Title
-from .base import Runtime, RuntimeNotReady
+from .base import Runtime
 from .web import make_webview
 
+# Official Ruffle self-hosted bundle over https (resolves its own wasm chunks).
+RUFFLE_SRC = "https://unpkg.com/@ruffle-rs/ruffle"
 
-def ruffle_dir() -> Optional[str]:
-    candidates = [os.environ.get("YONDERLOFT_RUFFLE_DIR")]
-    candidates.append(os.path.join(config.PKGDATADIR, "ruffle"))
-    if not config.INSTALLED:
-        candidates.append(os.path.join(config.PKGDATADIR, "build-aux", "ruffle"))
-    for path in candidates:
-        if path and os.path.exists(os.path.join(path, "ruffle.js")):
-            return path
-    return None
+# Fill the window with just the game. We style the Ruffle host elements (and raw
+# Flash embeds) — not the inner <canvas>, which lives in shadow DOM. No DOM is
+# removed, so the game's own scripts keep working; the player just covers the
+# page chrome.
+_ISOLATE_CSS = """
+html, body { margin: 0 !important; overflow: hidden !important; background: #241F31 !important; }
+ruffle-player, ruffle-object, ruffle-embed,
+embed[src$=".swf"], object[data$=".swf"],
+embed[type*="flash"], object[type*="flash"] {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border: 0 !important;
+  z-index: 2147483647 !important;
+}
+"""
 
 
-def _config_script(public_path: str, force_scale: str) -> str:
-    cfg = {
-        "publicPath": public_path,
+def _ruffle_config(force_scale: str) -> dict:
+    return {
         "polyfills": True,
         "autoplay": "on",
         "scale": force_scale or "showAll",
+        "letterbox": "on",
         "contextMenu": "rightClickOnly",
         "warnOnUnsupportedContent": False,
         "logLevel": "error",
+        "unmuteOverlay": "hidden",
     }
+
+
+def _loader_script(config: dict) -> str:
+    # Set Ruffle config, then load Ruffle from the CDN. Injected at document
+    # start so the polyfill catches the page's Flash.
     return (
         "window.RufflePlayer = window.RufflePlayer || {};\n"
-        f"window.RufflePlayer.config = {json.dumps(cfg)};\n"
+        f"window.RufflePlayer.config = {json.dumps(config)};\n"
+        "(function () {\n"
+        "  var s = document.createElement('script');\n"
+        f"  s.src = {json.dumps(RUFFLE_SRC)};\n"
+        "  s.async = false;\n"
+        "  (document.head || document.documentElement).appendChild(s);\n"
+        "})();\n"
     )
 
 
@@ -60,42 +79,27 @@ class RuffleRuntime(Runtime):
     name = "ruffle"
     embeds = True
     security_note = (
-        "Runs through Ruffle, an open-source Flash emulator — no insecure plugin."
+        "Played through Ruffle (open-source, sandboxed) — no insecure plugin."
     )
 
     def build_view(self, title: Title, server: Server, network_session):
-        rdir = ruffle_dir()
-        if rdir is None:
-            raise RuntimeNotReady(
-                "Ruffle isn't bundled in this build. Reinstall Yonderloft, or set "
-                "YONDERLOFT_RUFFLE_DIR to a self-hosted Ruffle.",
-                homepage=title.homepage or server.url,
-            )
-
         ruffle_cfg = title.ruffle or {}
-        force_scale = ruffle_cfg.get("force_scale", "showAll")
-        public_path = GLib.filename_to_uri(rdir + os.sep, None)
-
         view = make_webview(network_session)
 
-        # Inject config first, then Ruffle itself, at document start so the
-        # polyfill catches the page's Flash before it would have run.
         ucm = view.get_user_content_manager()
         ucm.add_script(
             WebKit.UserScript.new(
-                _config_script(public_path, force_scale),
+                _loader_script(_ruffle_config(ruffle_cfg.get("force_scale", "showAll"))),
                 WebKit.UserContentInjectedFrames.ALL_FRAMES,
                 WebKit.UserScriptInjectionTime.START,
                 None, None,
             )
         )
-        with open(os.path.join(rdir, "ruffle.js"), "r", encoding="utf-8") as fh:
-            ruffle_js = fh.read()
-        ucm.add_script(
-            WebKit.UserScript.new(
-                ruffle_js,
+        ucm.add_style_sheet(
+            WebKit.UserStyleSheet.new(
+                _ISOLATE_CSS,
                 WebKit.UserContentInjectedFrames.ALL_FRAMES,
-                WebKit.UserScriptInjectionTime.START,
+                WebKit.UserStyleLevel.USER,
                 None, None,
             )
         )
@@ -109,12 +113,12 @@ class RuffleRuntime(Runtime):
 
     @staticmethod
     def _direct_host_page(swf_url: str, ruffle_cfg: dict) -> str:
-        flashvars = ruffle_cfg.get("flashvars", {})
-        params = json.dumps({"url": swf_url, **flashvars})
+        params = json.dumps({"url": swf_url, **ruffle_cfg.get("flashvars", {})})
         return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8">
 <style>html,body{{margin:0;height:100%;background:#241F31;overflow:hidden}}
-#stage{{width:100vw;height:100vh}}</style></head>
+#stage{{position:fixed;inset:0}}</style>
+<script src="{RUFFLE_SRC}"></script></head>
 <body><div id="stage"></div>
 <script>
 window.addEventListener('load', function () {{

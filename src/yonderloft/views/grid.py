@@ -37,11 +37,14 @@ class GameCard(Gtk.Button):
 
         self._cover = Gtk.Box()
         self._cover.add_css_class("cover")
-        self._cover.add_css_class("loft-glow")
+        self._cover.add_css_class("cover-ph")
         self._cover.set_size_request(_COVER_W, _COVER_H)
-        initial = Gtk.Label(label=title.name[:1].upper(), vexpand=True)
-        initial.add_css_class("title-1")
-        self._cover.append(initial)
+        ph_icon = Gtk.Image.new_from_icon_name("uk.aaronworld.Yonderloft-symbolic")
+        ph_icon.set_pixel_size(44)
+        ph_icon.add_css_class("cover-ph-icon")
+        ph_icon.set_hexpand(True)
+        ph_icon.set_vexpand(True)
+        self._cover.append(ph_icon)
         overlay.set_child(self._cover)
 
         scrim = Gtk.Box(valign=Gtk.Align.END)
@@ -88,7 +91,7 @@ class GameCard(Gtk.Button):
         picture.set_content_fit(Gtk.ContentFit.COVER)
         picture.set_size_request(_COVER_W, _COVER_H)
         picture.add_css_class("cover")
-        self._cover.remove_css_class("loft-glow")
+        self._cover.remove_css_class("cover-ph")
         self._cover.append(picture)
 
 

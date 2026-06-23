@@ -64,6 +64,16 @@ list.navigation-sidebar > row:selected {
   letter-spacing: -0.01em;
 }
 
+/* Art-less placeholder: a flat dusk panel with a quiet window glyph — not a
+ * blurry glow. */
+.cover-ph {
+  background-image: linear-gradient(to bottom, #2A2440, #211C2E);
+}
+.cover-ph-icon {
+  color: alpha(@loft_amber, 0.55);
+  opacity: 0.9;
+}
+
 /* Bottom scrim so overlaid chips/titles stay legible over bright art. */
 .cover-scrim {
   border-radius: 0 0 14px 14px;

@@ -56,11 +56,14 @@ class DetailPage(Adw.NavigationPage):
 
         self._art_box = Gtk.Box()
         self._art_box.add_css_class("hero")
-        self._art_box.add_css_class("loft-glow")
+        self._art_box.add_css_class("cover-ph")
         self._art_box.set_size_request(-1, 300)
-        initial = Gtk.Label(label=self._title.name[:1].upper(), vexpand=True)
-        initial.add_css_class("title-1")
-        self._art_box.append(initial)
+        ph_icon = Gtk.Image.new_from_icon_name("uk.aaronworld.Yonderloft-symbolic")
+        ph_icon.set_pixel_size(72)
+        ph_icon.add_css_class("cover-ph-icon")
+        ph_icon.set_hexpand(True)
+        ph_icon.set_vexpand(True)
+        self._art_box.append(ph_icon)
         overlay.set_child(self._art_box)
 
         scrim = Gtk.Box()
@@ -106,7 +109,7 @@ class DetailPage(Adw.NavigationPage):
         picture.set_content_fit(Gtk.ContentFit.COVER)
         picture.set_size_request(-1, 300)
         picture.add_css_class("hero")
-        self._art_box.remove_css_class("loft-glow")
+        self._art_box.remove_css_class("cover-ph")
         self._art_box.append(picture)
 
     def _build_server_picker(self) -> Gtk.Widget:
