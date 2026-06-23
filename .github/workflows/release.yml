@@ -43,9 +43,9 @@ jobs:
             version=$(awk -F"'" '/^[[:space:]]*version:/{print $2; exit}' meson.build)
             tag="v$version"
           else
-            tag=$(python3 - "$latest" <<'PY'
-import re,sys
-latest=sys.argv[1]
+            tag=$(python3 <<PY
+import re
+latest='$latest'
 m=re.match(r'^v(\d+)\.(\d+)\.(\d+)$', latest)
 if m:
     print(f'v{int(m.group(1))}.{int(m.group(2))}.{int(m.group(3))+1}')
