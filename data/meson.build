@@ -49,6 +49,14 @@ install_data(
   'icons/symbolic/@0@-symbolic.svg'.format(app_id),
   install_dir: datadir / 'icons' / 'hicolor' / 'symbolic' / 'apps',
 )
+# Raster icons: appstreamcli compose (run by flatpak-builder) needs a readable
+# PNG, and Flathub requires one. Regenerate with build-aux/render-icon.py.
+foreach size : ['128x128', '256x256']
+  install_data(
+    'icons' / size / '@0@.png'.format(app_id),
+    install_dir: datadir / 'icons' / 'hicolor' / size / 'apps',
+  )
+endforeach
 
 # --- Bundled catalog (offline fallback / first-run seed) ----------------------
 install_data(
